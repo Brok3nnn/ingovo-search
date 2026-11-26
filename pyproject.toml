@@ -31,7 +31,7 @@ dependencies = [
     "redis>=5.2",
     "structlog>=24.4",
     # Optional second reranker (TypeSafe Jev); only called when TYPESAFE_API_KEY is set.
-    "typesafe-sdk==0.7.2",
+    "typesafe-sdk==0.7.5",
     "httpx2>=2.0.0",
 ]
 
