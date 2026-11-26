@@ -1,0 +1,50 @@
+{"id": "q01", "category": "simple-sale-district", "query": "eladó lakás Budapest 13 kerület 60 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 60000000, "city_contains": ["budapest"], "district_contains": ["xiii", "13"]}}
+{"id": "q02", "category": "simple-sale-price", "query": "budai lakás 80 millió alatt erkéllyel", "expect": {"transaction_type": "sale", "price_huf_max": 80000000, "city_contains": ["budapest"]}}
+{"id": "q03", "category": "complex-family-house", "query": "csendes családi ház kerttel Pest megyében", "expect": {"transaction_type": "sale"}}
+{"id": "q04", "category": "balaton-holiday", "query": "balatoni nyaraló jó állapotban", "expect": {"transaction_type": "sale"}}
+{"id": "q05", "category": "rent-studio", "query": "kiadó garzon Budapesten 250 ezer alatt", "expect": {"transaction_type": "rent", "price_huf_max": 250000, "city_contains": ["budapest"]}}
+{"id": "q06", "category": "renovation", "query": "felújítandó ház nagy telekkel", "expect": {"transaction_type": "sale"}}
+{"id": "q07", "category": "soft-pref", "query": "lakás jó közlekedéssel fiatal párnak", "expect": {}}
+{"id": "q08", "category": "simple-sale-district", "query": "eladó tégla lakás Budapest 11 kerület 90 millióig", "expect": {"transaction_type": "sale", "price_huf_max": 90000000, "city_contains": ["budapest"], "district_contains": ["xi", "11"]}}
+{"id": "q09", "category": "rent-budapest", "query": "kiadó kétszobás lakás Budapesten 300 ezer forint alatt", "expect": {"transaction_type": "rent", "price_huf_max": 300000, "city_contains": ["budapest"]}}
+{"id": "q10", "category": "complex-multi", "query": "eladó 3 szobás felújított panel a XIII. kerületben 70 millió alatt erkéllyel", "expect": {"transaction_type": "sale", "price_huf_max": 70000000, "city_contains": ["budapest"], "district_contains": ["xiii", "13"]}}
+{"id": "q11", "category": "region", "query": "eladó családi ház Debrecen csendes részén nagy telekkel", "expect": {"transaction_type": "sale", "city_contains": ["debrecen"]}}
+{"id": "q12", "category": "region-rent", "query": "kiadó bútorozott lakás Szegeden 180 ezer alatt", "expect": {"transaction_type": "rent", "price_huf_max": 180000, "city_contains": ["szeged"]}}
+{"id": "q13", "category": "soft-pref", "query": "világos, napfényes lakás nyugodt környéken", "expect": {}}
+{"id": "q14", "category": "balaton", "query": "eladó nyaraló a Balaton déli partján 40 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 40000000}}
+{"id": "q15", "category": "low-result-strict", "query": "eladó kastély saját tóval Sopron közelében 500 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 500000000}}
+{"id": "q16", "category": "simple-sale", "query": "eladó újépítésű lakás Budapesten", "expect": {"transaction_type": "sale", "city_contains": ["budapest"]}}
+{"id": "q17", "category": "rent-house", "query": "kiadó családi ház kerttel az agglomerációban 400 ezer alatt", "expect": {"transaction_type": "rent", "price_huf_max": 400000}}
+{"id": "q18", "category": "complex-multi", "query": "eladó kétszobás lakás Győrben 45 millió alatt jó közlekedéssel", "expect": {"transaction_type": "sale", "price_huf_max": 45000000, "city_contains": ["győr", "gyor"]}}
+{"id": "q19", "category": "price-range", "query": "eladó lakás Budapest belváros 50 és 80 millió között", "expect": {"transaction_type": "sale", "price_huf_min": 50000000, "price_huf_max": 80000000, "city_contains": ["budapest"]}}
+{"id": "q20", "category": "soft-pref", "query": "kutyabarát lakás zöldövezetben kisgyerekes családnak", "expect": {}}
+{"id": "q21", "category": "simple-sale-district", "query": "eladó lakás a II. kerületben 120 millióig", "expect": {"transaction_type": "sale", "price_huf_max": 120000000, "city_contains": ["budapest"], "district_contains": ["ii", "2"]}}
+{"id": "q22", "category": "rent-studio", "query": "kiadó garzon a belvárosban havi 200 ezer forintért", "expect": {"transaction_type": "rent", "price_huf_max": 220000}}
+{"id": "q23", "category": "renovation", "query": "eladó felújítandó parasztház vidéken 25 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 25000000}}
+{"id": "q24", "category": "complex-multi", "query": "eladó 4 szobás családi ház garázzsal Pest megyében 65 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 65000000}}
+{"id": "q25", "category": "balaton-rent", "query": "kiadó nyaraló a Balatonnál nyárra", "expect": {"transaction_type": "rent"}}
+{"id": "q26", "category": "simple-sale", "query": "eladó kis lakás Pécsen 30 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 30000000, "city_contains": ["pécs", "pecs"]}}
+{"id": "q27", "category": "soft-pref", "query": "modern, igényes otthon jó iskolák közelében", "expect": {}}
+{"id": "q28", "category": "rent-budapest", "query": "kiadó háromszobás lakás Budán 350 ezer alatt", "expect": {"transaction_type": "rent", "price_huf_max": 350000, "city_contains": ["budapest"]}}
+{"id": "q29", "category": "complex-multi", "query": "eladó tégla lakás lifttel a VI. kerületben 75 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 75000000, "city_contains": ["budapest"], "district_contains": ["vi", "6"]}}
+{"id": "q30", "category": "low-result-strict", "query": "eladó tetőtéri loft panorámával a Várban 300 millióig", "expect": {"transaction_type": "sale", "price_huf_max": 300000000}}
+{"id": "q31", "category": "simple-sale", "query": "eladó ház Miskolcon", "expect": {"transaction_type": "sale", "city_contains": ["miskolc"]}}
+{"id": "q32", "category": "rent-house", "query": "kiadó sorház kerttel Budaörsön 300 ezer alatt", "expect": {"transaction_type": "rent", "price_huf_max": 300000}}
+{"id": "q33", "category": "price-range", "query": "eladó lakás Szegeden 25 és 45 millió között", "expect": {"transaction_type": "sale", "price_huf_min": 25000000, "price_huf_max": 45000000, "city_contains": ["szeged"]}}
+{"id": "q34", "category": "soft-pref", "query": "olcsó albérlet egyetemistáknak a város szívében", "expect": {"transaction_type": "rent"}}
+{"id": "q35", "category": "balaton", "query": "eladó vízparti telek a Balatonnál", "expect": {"transaction_type": "sale"}}
+{"id": "q36", "category": "complex-multi", "query": "eladó kétszintes családi ház medencével Pest megyében 90 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 90000000}}
+{"id": "q37", "category": "simple-sale-district", "query": "eladó lakás a IX. kerületben 60 millióig", "expect": {"transaction_type": "sale", "price_huf_max": 60000000, "city_contains": ["budapest"], "district_contains": ["ix", "9"]}}
+{"id": "q38", "category": "rent-budapest", "query": "kiadó modern garzon Újlipótvárosban 230 ezer alatt", "expect": {"transaction_type": "rent", "price_huf_max": 230000, "city_contains": ["budapest"]}}
+{"id": "q39", "category": "renovation", "query": "eladó bontásra váró ház nagy telekkel olcsón", "expect": {"transaction_type": "sale"}}
+{"id": "q40", "category": "soft-pref", "query": "tágas, levegős lakás távmunkához dolgozószobával", "expect": {}}
+{"id": "q41", "category": "simple-sale", "query": "eladó lakás Veszprémben 40 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 40000000, "city_contains": ["veszprém", "veszprem"]}}
+{"id": "q42", "category": "complex-multi", "query": "eladó felújított 65 m2-es lakás a VII. kerületben 55 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 55000000, "city_contains": ["budapest"], "district_contains": ["vii", "7"]}}
+{"id": "q43", "category": "rent-studio", "query": "kiadó kis stúdió a XIII. kerületben 200 ezerig", "expect": {"transaction_type": "rent", "price_huf_max": 200000, "city_contains": ["budapest"], "district_contains": ["xiii", "13"]}}
+{"id": "q44", "category": "region", "query": "eladó családi ház Kecskeméten csendes utcában", "expect": {"transaction_type": "sale", "city_contains": ["kecskemét", "kecskemet"]}}
+{"id": "q45", "category": "low-result-strict", "query": "eladó vitorláskikötő melletti villa a Balatonon 800 millióig", "expect": {"transaction_type": "sale", "price_huf_max": 800000000}}
+{"id": "q46", "category": "price-range", "query": "kiadó lakás Budapesten 150 és 250 ezer között", "expect": {"transaction_type": "rent", "price_huf_min": 150000, "price_huf_max": 250000, "city_contains": ["budapest"]}}
+{"id": "q47", "category": "soft-pref", "query": "befektetésnek jó kiadható kis lakás belvárosban", "expect": {}}
+{"id": "q48", "category": "simple-sale", "query": "eladó panellakás Budapest 40 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 40000000, "city_contains": ["budapest"]}}
+{"id": "q49", "category": "complex-multi", "query": "eladó háromszobás kertkapcsolatos lakás Budán 100 millió alatt", "expect": {"transaction_type": "sale", "price_huf_max": 100000000, "city_contains": ["budapest"]}}
+{"id": "q50", "category": "rent-house", "query": "kiadó bútorozott családi ház a Balatonnál hosszú távra", "expect": {"transaction_type": "rent"}}

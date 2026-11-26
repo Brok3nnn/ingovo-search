@@ -1,0 +1,200 @@
+{
+ "ok": true,
+ "data": {
+  "results": [
+   {
+    "listing_id": "L3",
+    "rank": 1,
+    "score": 0.7,
+    "match_percent": 87,
+    "result_scope": "exact",
+    "distance_km": null,
+    "match_components": {
+     "location": 1.0,
+     "price": null,
+     "area": null,
+     "rooms": null,
+     "property_type": null,
+     "preferences": null,
+     "semantic": 0.0
+    },
+    "breakdown": {
+     "content": 0.0,
+     "factual": 0.0,
+     "softpref_core": 0.0,
+     "softpref_free": 0.0,
+     "anchor": 0.0,
+     "quality": 0.0,
+     "geo": 0.0,
+     "pooled": 0.0,
+     "recency": 0.0,
+     "explore": 0.0,
+     "total": 0.7,
+     "amenity_match": 1.0
+    },
+    "district": "11",
+    "city": "Budapest",
+    "rationale": "rationale-L3",
+    "compromise": null,
+    "compromises": [],
+    "property": {
+     "id": "L3",
+     "title": "Listing L3",
+     "title_translations": null,
+     "price": null,
+     "price_huf": null,
+     "type": "panel",
+     "transaction_type": "sale",
+     "area": 50.0,
+     "rooms": "2",
+     "city": "Budapest",
+     "district": "11",
+     "address": "Példa utca 1.",
+     "latitude": null,
+     "longitude": null,
+     "images": [],
+     "features": {}
+    },
+    "ai_narrative": null
+   },
+   {
+    "listing_id": "L1",
+    "rank": 2,
+    "score": 0.9,
+    "match_percent": 75,
+    "result_scope": "exact",
+    "distance_km": null,
+    "match_components": {
+     "location": 1.0,
+     "price": null,
+     "area": null,
+     "rooms": null,
+     "property_type": null,
+     "preferences": null,
+     "semantic": 0.5
+    },
+    "breakdown": {
+     "content": 0.0,
+     "factual": 0.5,
+     "softpref_core": 0.0,
+     "softpref_free": 0.0,
+     "anchor": 0.0,
+     "quality": 0.0,
+     "geo": 0.0,
+     "pooled": 0.0,
+     "recency": 0.0,
+     "explore": 0.0,
+     "total": 0.9,
+     "amenity_match": 1.0
+    },
+    "district": "13",
+    "city": "Budapest",
+    "rationale": "rationale-L1",
+    "compromise": null,
+    "compromises": [],
+    "property": {
+     "id": "L1",
+     "title": "Listing L1",
+     "title_translations": null,
+     "price": 80000000.0,
+     "price_huf": "80000000",
+     "type": "panel",
+     "transaction_type": "sale",
+     "area": 50.0,
+     "rooms": "2",
+     "city": "Budapest",
+     "district": "13",
+     "address": "Példa utca 1.",
+     "latitude": 47.5,
+     "longitude": 19.05,
+     "images": [],
+     "features": {}
+    },
+    "ai_narrative": null
+   },
+   {
+    "listing_id": "L2",
+    "rank": 3,
+    "score": 0.8,
+    "match_percent": 75,
+    "result_scope": "exact",
+    "distance_km": null,
+    "match_components": {
+     "location": 1.0,
+     "price": null,
+     "area": null,
+     "rooms": null,
+     "property_type": null,
+     "preferences": null,
+     "semantic": 0.0
+    },
+    "breakdown": {
+     "content": 0.0,
+     "factual": 0.0,
+     "softpref_core": 0.3,
+     "softpref_free": 0.0,
+     "anchor": 0.0,
+     "quality": 0.0,
+     "geo": 0.0,
+     "pooled": 0.0,
+     "recency": 0.0,
+     "explore": 0.0,
+     "total": 0.8,
+     "amenity_match": 1.0
+    },
+    "district": "13",
+    "city": "Budapest",
+    "rationale": "rationale-L2",
+    "compromise": null,
+    "compromises": [],
+    "property": {
+     "id": "L2",
+     "title": "Listing L2",
+     "title_translations": null,
+     "price": 120000000.0,
+     "price_huf": "120000000",
+     "type": "panel",
+     "transaction_type": "sale",
+     "area": 85.0,
+     "rooms": "3",
+     "city": "Budapest",
+     "district": "13",
+     "address": "Példa utca 1.",
+     "latitude": null,
+     "longitude": null,
+     "images": [],
+     "features": {}
+    },
+    "ai_narrative": null
+   }
+  ],
+  "clarification": null,
+  "total_candidates": 3,
+  "score_version": "v3-authoritative-rank-aligned-match",
+  "pipeline_versions": {
+   "score": "v3-authoritative-rank-aligned-match",
+   "search_contract": "search-contract-v3-authoritative-order-administrative-geo-scope",
+   "match_percent": "match-percent-v2-near-proximity",
+   "canonical_ranking": "authoritative-order-v2",
+   "rerank_prompt": "rerank/v4-locale-directive",
+   "response_cache": "response-v23-map-coordinates"
+  },
+  "relaxed": false,
+  "relaxation_path": [],
+  "refinement_suggestions": [],
+  "search_context": [
+   {
+    "key": "location",
+    "label": "Budapest",
+    "relaxed": false
+   }
+  ],
+  "image_context": null
+ },
+ "error": null,
+ "meta": {
+  "request_id": "<volatile>",
+  "timestamp": "<volatile>",
+  "timings_ms": "<volatile>"
+ }
+}

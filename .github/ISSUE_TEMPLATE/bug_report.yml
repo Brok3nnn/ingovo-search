@@ -1,0 +1,30 @@
+name: Bug report
+description: Something in the search pipeline, the API or the tooling does not work as documented.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: The query (and its English meaning), the command or request, and any relevant settings. Never paste API keys.
+      placeholder: |
+        uv run ingovo-search --offline "..."
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output or logs
+      render: shell
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, and whether you ran offline or against the docker compose stack.

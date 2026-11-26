@@ -1,0 +1,40 @@
+# Local development stack: Postgres (PostGIS + pgvector) and Redis.
+#
+#   docker compose up -d
+#   uv run ingovo-search-seed
+#
+# Both services listen on 127.0.0.1 only. Postgres uses trust authentication so no
+# password lives in this file: it is a throwaway local database, never expose it.
+# The schema is applied on the first start (and again, idempotently, by the seed).
+services:
+  postgres:
+    build:
+      context: ./docker
+      dockerfile: postgres.Dockerfile
+    environment:
+      POSTGRES_USER: ingovo
+      POSTGRES_DB: ingovo
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/ingovo_search/db/schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ingovo -d ingovo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

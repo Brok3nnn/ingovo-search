@@ -1,0 +1,806 @@
+[
+ {
+  "query": "Feleségemmel és két gyerekünkkel költözünk Budapestre, a 11. vagy a 22. kerületben keresünk eladó házat maximum 180 millióért, fontos a kert és a garázs, jó lenne ha csendes utcában lenne",
+  "parsed": null
+ },
+ {
+  "query": "Nyugdíjas éveinkre keresünk a Balaton északi partján egy nyaralót, 40 millió körül, lehetőleg felújított állapotban",
+  "parsed": null
+ },
+ {
+  "query": "Első lakásvásárlók vagyunk, 45 és 55 millió közötti kétszobás lakást keresünk Pesten, közel a metróhoz, az erkély előny lenne",
+  "parsed": null
+ },
+ {
+  "query": "Cégünk irodát bérelne a belvárosban, legalább 200 négyzetméter kell, fontos a parkolási lehetőség és a lift",
+  "parsed": null
+ },
+ {
+  "query": "Vidékre költöznénk Budapestről, Veszprém megyében keresünk családi házat nagy kerttel, 80 millióig",
+  "parsed": null
+ },
+ {
+  "query": "Egyetemista lányomnak keresünk albérletet Szegeden, maximum 150 ezer forint havonta, bútorozott legyen",
+  "parsed": null
+ },
+ {
+  "query": "Befektetési célból vennék egy garzont vagy kisebb lakást a 6. vagy 7. kerületben 40 millió alatt, amit hosszú távra ki tudok adni",
+  "parsed": null
+ },
+ {
+  "query": "Háromgenerációs családunknak keresünk eladó házat, minimum 5 szoba és 200 négyzetméter, dupla garázzsal",
+  "parsed": null
+ },
+ {
+  "query": "A munkahelyem a Váci úton van, ezért a 13. kerületben vagy Újpesten keresek kiadó lakást, klímával",
+  "parsed": null
+ },
+ {
+  "query": "Kutyával és macskával költöznénk, kertes házat bérelnénk maximum 400 ezer forintért havonta",
+  "parsed": null
+ },
+ {
+  "query": "A férjem a Nyugati pályaudvarnál dolgozik, én home office-ban vagyok, ezért a 13. kerületben keresünk eladó lakást. Legalább 3 szoba kellene, erkéllyel, és fontos, hogy világos legyen. 85 milliónál többet nem szeretnénk költeni.",
+  "parsed": null
+ },
+ {
+  "query": "Nyugdíjba vonulunk a feleségemmel, és a városi lakásunkat lecserélnénk egy csendes balatoni nyaralóra az északi parton. Kis kert jó lenne, felújítottat keresünk, 60 millió környékén.",
+  "parsed": null
+ },
+ {
+  "query": "Elváltam, két gyerekem hétvégente van nálam, ezért kiadó lakást keresek Szegeden, minimum 2 szoba, havi 200 ezerig. Bútorozott előny, de nem feltétel.",
+  "parsed": null
+ },
+ {
+  "query": "Első lakásunkat vennénk a párommal Budapesten, a pesti oldalon. Panel is jöhet, ha jó állapotú, 45 millió a plafon, és jó lenne, ha metróhoz közel lenne, mert nincs autónk.",
+  "parsed": null
+ },
+ {
+  "query": "Cégen belül Győrbe helyeztek át, ezért sürgősen keresek kiadó lakást a belvároshoz közel. Egyedül költözöm, 1-2 szoba bőven elég, maximum 180 ezer forint havonta, lehetőleg klímával.",
+  "parsed": null
+ },
+ {
+  "query": "A nagymamám után örököltünk egy kis pénzt, és befektetésnek vennénk egy kiadható garzont vagy kis lakást a 7. kerületben. 55 millió alatt nézelődünk, az állapot nem számít, akár felújítandó is lehet.",
+  "parsed": null
+ },
+ {
+  "query": "Két kisgyerekes család vagyunk, Dunakeszire költöznénk Budapestről. Eladó családi házat keresünk nagy kerttel, játszótér és óvoda legyen a közelben, 120 millióig.",
+  "parsed": null
+ },
+ {
+  "query": "Az édesanyám idős, nehezen jár lépcsőt, ezért olyan eladó lakást keresünk neki Pécsen, ami liftes házban van. Két szoba elég, a kórház közelsége fontos lenne, 35 millió körül.",
+  "parsed": null
+ },
+ {
+  "query": "Home office-ból dolgozom fejlesztőként, a párom tanár. Kiadó házat keresünk Gödöllőn, ahol van egy külön dolgozószoba, tehát minimum 3 szoba, terasz vagy kert előny. Max 800 ezer havonta.",
+  "parsed": null
+ },
+ {
+  "query": "A déli parton, Siófokon keresünk eladó nyaralót, ahova le tudunk járni a gyerekekkel nyaranta. Medence vagy legalább nagy kert legyen, 55 millióig. A vízpart közelsége előny.",
+  "parsed": null
+ },
+ {
+  "query": "A feleségem várandós, és a belvárosi másfél szobásunk kicsi lesz. A 14. kerületben keresünk eladó lakást, legalább 60 négyzetméter, erkélyes, park közelében, 70 millió alatt.",
+  "parsed": null
+ },
+ {
+  "query": "Vidékről költözöm Debrecenbe egyetem miatt, a szüleim vennének nekem egy kis lakást albérlet helyett. 30 és 40 millió között nézünk, jó közlekedéssel.",
+  "parsed": null
+ },
+ {
+  "query": "Motoros vagyok és télen is dolgozom, ezért fontos a garázs vagy fedett tároló. Eladó lakást keresek Miskolcon, 30 millió környékén, az állapota lehet átlagos.",
+  "parsed": null
+ },
+ {
+  "query": "Négyfős család vagyunk, most bérlünk, de vennénk saját házat Gödöllőn. Legalább 4 szoba, garázs és kert kellene, felújított állapotban, maximum 110 millióért.",
+  "parsed": null
+ },
+ {
+  "query": "A párommal állatmenhelyről fogadtunk örökbe két kutyát, így kertes házat kell bérelnünk Vácon. Havi 450 ezerig tudunk menni, a kert nem lehet pici.",
+  "parsed": null
+ },
+ {
+  "query": "Zenész vagyok, otthon gyakorolok, ezért a jó hangszigetelés és a nyugodt környezet fontos. Eladó családi házat keresek Budapest külső kerületeiben, mondjuk a 16. vagy 17. kerületben, csendes utcában, 90 millióig.",
+  "parsed": null
+ },
+ {
+  "query": "Az irodánk a Váci úton van, és sokat túlórázom, ezért a 13. kerületben szeretnék kiadó lakást, metróközelben. Egyedül élek, 50 négyzetméter elég, max 280 ezer havonta.",
+  "parsed": null
+ },
+ {
+  "query": "Fotós műterem céljára is használható nagy, világos lakást keresek Budapesten, magas belmagassággal. Vétel, 100 millióig, minimum 80 négyzetméter.",
+  "parsed": null
+ },
+ {
+  "query": "Nyugdíjas házaspár vagyunk Békéscsabáról, a gyerekeink Szegedre költöztek, és mi is utánuk mennénk. Eladó kisebb házat vagy nagyobb lakást keresünk Szegeden, kertkapcsolat vagy erkély előny, 45 millió körül.",
+  "parsed": null
+ },
+ {
+  "query": "A kislányom jövőre iskolás lesz, ezért olyan eladó lakást keresünk a 11. kerületben, ahonnan gyalog elérhető egy iskola meg egy játszótér. 3 szoba kell, 75 millió a maximum, és jó lenne erkély is.",
+  "parsed": null
+ },
+ {
+  "query": "Allergiás vagyok a penészre, ezért csak újépítésű vagy teljesen felújított lakás jöhet szóba. Kiadót keresek a 11. vagy 12. kerületben, 2 szoba, maximum 320 ezer forint havonta.",
+  "parsed": null
+ },
+ {
+  "query": "Két egyetemista lányunknak keresünk kiadó lakást Debrecenben, a villamosvonalhoz közel. Két külön szoba kell, maximum 220 ezer havonta rezsi nélkül.",
+  "parsed": null
+ },
+ {
+  "query": "Az építőiparban dolgozom, sok szerszámmal, ezért pince vagy nagy tároló kell a házhoz. Eladót keresek Nyíregyházán, kerttel, 55 millióig.",
+  "parsed": null
+ },
+ {
+  "query": "Kisbabával költözünk vissza Magyarországra külföldről, először bérelnénk Budapesten a budai oldalon, zöldövezetben. 3 szoba, gyógyszertár közel legyen, 450 ezer a plafon havonta.",
+  "parsed": null
+ },
+ {
+  "query": "A nagyszüleim öröksége árából vennénk egy nyaralót a Balatonnál, Balatonfüred környéke érdekel. Felújítandó is lehet, 40 millióig.",
+  "parsed": null
+ },
+ {
+  "query": "Társasházi lakásból költöznénk sorházba Budaörsön. Fontos a kis kert és a kocsibeálló, két nagyobb szoba plusz egy dolgozó kellene, tehát minimum 3 szoba. 130 millióig nézelődünk.",
+  "parsed": null
+ },
+ {
+  "query": "Idős szüleimhez költöznénk közelebb Zalaegerszegre. Eladó lakást keresünk liftes házban, 40 millió környékén.",
+  "parsed": null
+ },
+ {
+  "query": "A barátnőmmel összeköltözünk, mindketten biciklivel járunk dolgozni a belvárosba. Kiadó lakást keresünk a 6. vagy 7. kerületben, ahol a bicikliket is tudjuk tárolni. Max 300 ezer havonta.",
+  "parsed": null
+ },
+ {
+  "query": "Vállalkozóként sokat autózom vidékre, ezért fontos a gyors kijutás az autópályára. Győrben keresek eladó házat garázzsal, 4 szoba, 80 millióig.",
+  "parsed": null
+ },
+ {
+  "query": "Lovakat tartunk a párommal, ezért nagy telek és melléképület kellene, de a városi munkahely miatt Székesfehérvár közelében maradnánk. Eladó családi házat keresünk minimum 110 négyzetméterrel, 140 millióig.",
+  "parsed": null
+ },
+ {
+  "query": "Remote-ban dolgozom egy amerikai cégnek, éjszakai meetingekkel, szóval a jó fényviszonyok és a klíma nagyon fontos. Eladó, déli fekvésű lakást keresek Kecskeméten, 45 millió alatt.",
+  "parsed": null
+ },
+ {
+  "query": "A fiunk kerekesszékkel közlekedik, ezért csak liftes lakás jöhet szóba, széles ajtókkal. Eladót keresünk Budapesten a 4. vagy 15. kerületben, minimum 70 négyzetméter, 55 millióig.",
+  "parsed": null
+ },
+ {
+  "query": "eladó lakás budapest 13. kerület teraszos",
+  "parsed": null
+ },
+ {
+  "query": "kiadó ház budaörs kutyával",
+  "parsed": null
+ },
+ {
+  "query": "új építésű lakás 50 millióig",
+  "parsed": null
+ },
+ {
+  "query": "olyan albérletet keresek ahol van garázs",
+  "parsed": null
+ },
+ {
+  "query": "balatoni nyaraló vízparti szauna",
+  "parsed": null
+ },
+ {
+  "query": "nem kell lift",
+  "parsed": null
+ },
+ {
+  "query": "inkább a pesti oldalon legyen",
+  "parsed": null
+ },
+ {
+  "query": "eladó panel dunakeszi",
+  "parsed": null
+ },
+ {
+  "query": "legyen minimum 3 szobás",
+  "parsed": null
+ },
+ {
+  "query": "keresek egy csendes utcai lakást",
+  "parsed": null
+ },
+ {
+  "query": "belvárosi kiadó üzlethelyiség",
+  "parsed": null
+ },
+ {
+  "query": "maximum 100 millió",
+  "parsed": {
+   "hard_filters": {
+    "district_in": [],
+    "property_type_in": [],
+    "property_type_exclude": [],
+    "price_huf_max": 100000000
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {},
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "világos napfényes lakást keresek",
+  "parsed": null
+ },
+ {
+  "query": "felújítandó ház a 2. kerületben",
+  "parsed": null
+ },
+ {
+  "query": "80 négyzetméter feletti erkélyes lakás",
+  "parsed": null
+ },
+ {
+  "query": "eladó ház Pest megyében",
+  "parsed": {
+   "hard_filters": {
+    "district_in": [],
+    "transaction_type": "sale",
+    "property_type_in": [
+     "Ház"
+    ],
+    "property_type_exclude": []
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {
+    "county": "Pest"
+   },
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "kiadó lakás Veszprém megyében",
+  "parsed": {
+   "hard_filters": {
+    "district_in": [],
+    "transaction_type": "rent",
+    "property_type_in": [
+     "Lakás"
+    ],
+    "property_type_exclude": []
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {
+    "county": "Veszprém"
+   },
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "Borsodban eladó családi ház",
+  "parsed": null
+ },
+ {
+  "query": "Csongrádban kiadó iroda",
+  "parsed": {
+   "hard_filters": {
+    "city": "Csongrád",
+    "district_in": [],
+    "transaction_type": "rent",
+    "property_type_in": [
+     "Iroda"
+    ],
+    "property_type_exclude": []
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {},
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "Bács-Kiskun megyei telek",
+  "parsed": {
+   "hard_filters": {
+    "district_in": [],
+    "property_type_in": [
+     "Telek"
+    ],
+    "property_type_exclude": []
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {
+    "county": "Bács-Kiskun"
+   },
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "Hajdú-Biharban családi ház 60 millióig",
+  "parsed": null
+ },
+ {
+  "query": "nyaraló Balaton északi part",
+  "parsed": {
+   "hard_filters": {
+    "district_in": [],
+    "property_type_in": [
+     "Nyaraló"
+    ],
+    "property_type_exclude": []
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {
+    "balaton_shore": "Északi"
+   },
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "Balaton déli parton kiadó lakás",
+  "parsed": {
+   "hard_filters": {
+    "district_in": [],
+    "transaction_type": "rent",
+    "property_type_in": [
+     "Lakás"
+    ],
+    "property_type_exclude": []
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {
+    "balaton_shore": "Déli"
+   },
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "Veszprém megye Balaton északi parti ház",
+  "parsed": {
+   "hard_filters": {
+    "district_in": [],
+    "property_type_in": [
+     "Ház"
+    ],
+    "property_type_exclude": []
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {
+    "county": "Veszprém",
+    "balaton_shore": "Északi"
+   },
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "Pest megyei új építésű ház",
+  "parsed": null
+ },
+ {
+  "query": "csak Buda, ne Pest",
+  "parsed": null
+ },
+ {
+  "query": "Pesti lakás 50 millióig",
+  "parsed": {
+   "hard_filters": {
+    "city": "Budapest",
+    "district_in": [],
+    "property_type_in": [
+     "Lakás"
+    ],
+    "property_type_exclude": [],
+    "price_huf_max": 50000000
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {},
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "lakás 80 millió körül",
+  "parsed": {
+   "hard_filters": {
+    "district_in": [],
+    "property_type_in": [
+     "Lakás"
+    ],
+    "property_type_exclude": []
+   },
+   "anchors": {
+    "price_huf": 80000000
+   },
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {},
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "kb. 100 négyzetméteres családi ház",
+  "parsed": null
+ },
+ {
+  "query": "nagyjából 3 szobás lakás Szegeden",
+  "parsed": null
+ },
+ {
+  "query": "családi ház 120 millió körül Debrecenben",
+  "parsed": null
+ },
+ {
+  "query": "60 nm körüli erkélyes lakás",
+  "parsed": null
+ },
+ {
+  "query": "nagyjából 2 szobás, 35 millió körüli lakás",
+  "parsed": null
+ },
+ {
+  "query": "kb 90 nm-es ház 100 millió körül Pécsen",
+  "parsed": null
+ },
+ {
+  "query": "eladó olcsó lakás Budapesten",
+  "parsed": null
+ },
+ {
+  "query": "kiadó tágas lakás a belvárosban",
+  "parsed": null
+ },
+ {
+  "query": "eladó ház jó környéken",
+  "parsed": null
+ },
+ {
+  "query": "sürgősen eladó lakás, mindegy hol",
+  "parsed": null
+ },
+ {
+  "query": "3 gyerekes családnak való eladó ház",
+  "parsed": null
+ },
+ {
+  "query": "eladó luxuslakás a 12. kerületben",
+  "parsed": {
+   "hard_filters": {
+    "city": "Budapest",
+    "district_in": [
+     "12"
+    ],
+    "transaction_type": "sale",
+    "property_type_in": [
+     "Lakás"
+    ],
+    "property_type_exclude": []
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {},
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "fiatal pároknak ideális kiadó lakás",
+  "parsed": null
+ },
+ {
+  "query": "eladó 3 szobás téglalakás a 11. kerületben maximum 70 millióért, erkéllyel és lifttel",
+  "parsed": null
+ },
+ {
+  "query": "kiadó iroda Debrecenben, minimum 100 nm, parkolással",
+  "parsed": null
+ },
+ {
+  "query": "eladó családi ház Győrben nagy kerttel, garázzsal, 150 millió alatt",
+  "parsed": null
+ },
+ {
+  "query": "kiadó 2 szobás bútorozott lakás Szegeden max 250 ezerért",
+  "parsed": null
+ },
+ {
+  "query": "új építésű eladó lakás a 9. kerületben 60 és 80 millió között, legalább 50 nm",
+  "parsed": null
+ },
+ {
+  "query": "eladó telek Balatonfüreden minimum 800 négyzetméter",
+  "parsed": null
+ },
+ {
+  "query": "kéne egy kis kecó Pesten",
+  "parsed": null
+ },
+ {
+  "query": "másfél szobás lakást keresek",
+  "parsed": null
+ },
+ {
+  "query": "olyan lakás kéne ahol nem hallani a szomszédokat",
+  "parsed": null
+ },
+ {
+  "query": "lakcsi kiadó a hetedikben",
+  "parsed": null
+ },
+ {
+  "query": "albi kéne Kelenföldön max százötvenezerért",
+  "parsed": null
+ },
+ {
+  "query": "eladó lakás klímával",
+  "parsed": null
+ },
+ {
+  "query": "kiadó ház medencével",
+  "parsed": null
+ },
+ {
+  "query": "panorámás kilátású eladó lakás",
+  "parsed": null
+ },
+ {
+  "query": "metróhoz közeli kiadó lakás",
+  "parsed": null
+ },
+ {
+  "query": "pincés, teraszos családi ház eladó",
+  "parsed": null
+ },
+ {
+  "query": "eladó garázs a 8. kerületben",
+  "parsed": {
+   "hard_filters": {
+    "city": "Budapest",
+    "district_in": [
+     "8"
+    ],
+    "transaction_type": "sale",
+    "property_type_in": [
+     "Garázs"
+    ],
+    "property_type_exclude": []
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {},
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "kiadó lakás Miskolcon maximum 180 ezer forintért",
+  "parsed": null
+ },
+ {
+  "query": "legalább 4 szobás eladó ház Nyíregyházán",
+  "parsed": {
+   "hard_filters": {
+    "city": "Nyíregyháza",
+    "district_in": [],
+    "transaction_type": "sale",
+    "property_type_in": [
+     "Ház"
+    ],
+    "property_type_exclude": [],
+    "rooms_min": 4
+   },
+   "anchors": {},
+   "soft_preferences": [],
+   "soft_prefs_freetext": [],
+   "poi_near": [],
+   "geo_hints": {},
+   "semantic_query": "",
+   "conflict_flag": false,
+   "allow_distant_location_expansion": false
+  }
+ },
+ {
+  "query": "eladó ipari ingatlan Kecskeméten minimum 500 nm",
+  "parsed": null
+ },
+ {
+  "query": "eladó lakás a 8. kerületben, de nem földszinti",
+  "parsed": null
+ },
+ {
+  "query": "Szentendrén keresek eladó ingatlant, de telek nem érdekel",
+  "parsed": null
+ },
+ {
+  "query": "kiadó lakás Budán, csak ne legyen felújítandó",
+  "parsed": null
+ },
+ {
+  "query": "családi ház eladó, de nem Pest megyében",
+  "parsed": null
+ },
+ {
+  "query": "emeleti lakást keresek liftes házban, nem panelt",
+  "parsed": null
+ },
+ {
+  "query": "eladó ház Győrben, nem kell nagy kert, garázs viszont legyen",
+  "parsed": null
+ },
+ {
+  "query": "új építésű lakás Budapesten, de nem a belvárosban",
+  "parsed": null
+ },
+ {
+  "query": "albérlet Pesten maximum 250 ezerért, de nem a 8. kerületben",
+  "parsed": null
+ },
+ {
+  "query": "eladó lakás ami megéri az árát",
+  "parsed": null
+ },
+ {
+  "query": "kiadó lakás rövid időre turistáknak",
+  "parsed": null
+ },
+ {
+  "query": "nagy család számára alkalmas eladó ház kertvárosi környéken",
+  "parsed": null
+ },
+ {
+  "query": "diákoknak való olcsó albérlet az egyetem mellett",
+  "parsed": null
+ },
+ {
+  "query": "lakás 34,9 millió körül Kispesten",
+  "parsed": null
+ },
+ {
+  "query": "ház nagyjából 1,2 milliárd forintért a Rózsadombon",
+  "parsed": null
+ },
+ {
+  "query": "körülbelül 45 nm-es garzon kiadó",
+  "parsed": null
+ },
+ {
+  "query": "négy szoba körüli családi ház Sopronban",
+  "parsed": null
+ },
+ {
+  "query": "kiadó 3 szobás lakás a 2. kerületben erkéllyel és garázzsal, maximum 550 ezer forintért, legalább 80 négyzetméter",
+  "parsed": null
+ },
+ {
+  "query": "eladó újszerű családi ház Érden, legalább 4 szoba, dupla garázs, medence, 250 millióig",
+  "parsed": null
+ },
+ {
+  "query": "belvárosi kiadó iroda 150 és 300 nm között, lifttel, klímával, mélygarázzsal",
+  "parsed": null
+ },
+ {
+  "query": "eladó panorámás lakás a budai oldalon, minimum 3. emelet, erkéllyel, 100 és 150 millió között",
+  "parsed": null
+ },
+ {
+  "query": "kiadó családi ház nagy kerttel Dunakeszin, maximum 500 ezer forint havonta",
+  "parsed": null
+ },
+ {
+  "query": "eladó felújított téglalakás a 9. kerületben, legalább 2 szoba és 55 nm, 75 millióig, erkéllyel",
+  "parsed": null
+ },
+ {
+  "query": "sürgősen kéne valami albi a Corvin negyed környékén",
+  "parsed": null
+ },
+ {
+  "query": "kéne egy kétszobás panellakás Zuglóban",
+  "parsed": null
+ },
+ {
+  "query": "40 milla környékén keresek lakást",
+  "parsed": null
+ },
+ {
+  "query": "olyan kéglit keresek ami beköltözhető állapotban van, max 30 mill",
+  "parsed": null
+ },
+ {
+  "query": "eladó lakás 5. kerület Falk Miksa utca",
+  "parsed": null
+ },
+ {
+  "query": "kiadó raktár vagy ipari ingatlan Budapesten minimum 1000 nm",
+  "parsed": null
+ },
+ {
+  "query": "eladó vendéglátó egység Balatonlellén",
+  "parsed": null
+ },
+ {
+  "query": "eladó mezőgazdasági terület minimum 5 hektár",
+  "parsed": null
+ },
+ {
+  "query": "eladó lakás Budapesten, iskola legyen a közelben",
+  "parsed": null
+ },
+ {
+  "query": "kiadó lakás, tömegközlekedés legyen 5 perc alatt gyalog elérhető",
+  "parsed": null
+ },
+ {
+  "query": "eladó lakás a 13. kerületben, óvoda és játszótér a közelben",
+  "parsed": null
+ },
+ {
+  "query": "kiadó lakás metróhoz közel",
+  "parsed": null
+ },
+ {
+  "query": "családi ház bolt és gyógyszertár közelében",
+  "parsed": null
+ },
+ {
+  "query": "eladó lakás park mellett Szegeden",
+  "parsed": null
+ },
+ {
+  "query": "kiadó lakás, kórház 10 percen belül gyalog",
+  "parsed": null
+ },
+ {
+  "query": "családbarát környéken keresünk eladó házat",
+  "parsed": null
+ }
+]

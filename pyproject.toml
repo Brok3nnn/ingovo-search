@@ -1,0 +1,135 @@
+[project]
+name = "ingovo-search"
+version = "1.0.0"
+description = "Natural-language property search: an LLM query parser, PostGIS hard filters, pgvector retrieval, an LLM rerank and an absolute match score."
+readme = "README.md"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE"]
+authors = [{ name = "Balint Vitan" }]
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.14",
+    "Framework :: FastAPI",
+    "Natural Language :: Hungarian",
+    "Private :: Do Not Upload",
+]
+dependencies = [
+    "fastapi>=0.115",
+    "python-multipart>=0.0.18",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.30",
+    "pgvector>=0.3",
+    "geoalchemy2>=0.15",
+    "httpx>=0.27",
+    "google-genai>=1.0",
+    "cohere>=5.11",
+    "redis>=5.2",
+    "structlog>=24.4",
+    # Optional second reranker (TypeSafe Jev); only called when TYPESAFE_API_KEY is set.
+    "typesafe-sdk==0.7.2",
+    "httpx2>=2.0.0",
+]
+
+[project.urls]
+Repository = "https://github.com/Brok3nnn/ingovo-search"
+
+[project.scripts]
+ingovo-search = "ingovo_search.cli:main"
+ingovo-search-seed = "ingovo_search.seed:main"
+ingovo-search-api = "ingovo_search.api.main:run"
+ingovo-search-env-check = "ingovo_search.lib.env:check"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "ruff>=0.7",
+    "pyright>=1.1.390",
+    # Only the eval scripts load a .env explicitly; the app reads it through pydantic-settings.
+    "python-dotenv>=1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ingovo_search"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+src = ["src", "tests", "eval"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "I", "B", "UP", "PT", "RUF", "ASYNC", "SIM",
+    "C90", "S", "BLE", "TRY", "RET", "ARG", "PL", "PERF", "DTZ", "T20", "ERA", "PTH", "TC",
+]
+ignore = [
+    "E501",    # line length is the formatter's job
+    "PLR2004", # magic-value comparisons: thresholds and HTTP codes read fine inline
+    "TRY003",  # exception messages belong at the raise site
+    "TC001", "TC002", "TC003", "TC006",  # TYPE_CHECKING-only imports break pydantic/SQLAlchemy runtime annotations
+    "S311",    # `random` is used for synthetic data and jitter, never for secrets
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+# Known exceptions, file by file. Fix a file, delete its line; do not add to this table.
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]    # asserts are what tests are made of
+# The eval runners are operator scripts: they print, catch broadly per query so one
+# bad query does not end a long paid run, and grow long `main` functions.
+"eval/**/*.py" = [
+    "T201", "BLE001", "C901", "PLR0912", "PLR0913", "PLR0915", "PERF401", "ARG001", "ARG002",
+    "DTZ011", "S101", "PTH118", "PTH120", "PTH123", "PLW2901", "TRY004", "TRY400", "RUF046", "E402", "PLC0415",
+]
+"src/ingovo_search/eval/rerank_candidate_sweep.py" = ["PERF401"]
+"src/ingovo_search/ingestion/build_factual_text.py" = ["C901", "PLR0912"]
+"src/ingovo_search/ingestion/embed_listing.py" = ["ARG001", "PLR0913", "PLR0917"]
+"src/ingovo_search/lib/cost_tracker.py" = ["ERA001"]
+"src/ingovo_search/lib/embeddings.py" = ["PLC0415"]
+"src/ingovo_search/lib/jev.py" = ["PLR0913"]
+"src/ingovo_search/lib/llm.py" = ["PLC0415", "TRY300"]
+"src/ingovo_search/lib/llm_cost_log.py" = ["PLC0415", "PLR0913"]
+"src/ingovo_search/lib/observability.py" = ["PLR0913"]
+"src/ingovo_search/lib/vector_db.py" = ["PLR0913", "PLR0917", "S608"]
+"src/ingovo_search/api/middleware/rate_limit.py" = ["PLR0913"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pyright]
+pythonVersion = "3.12"
+venvPath = "."
+venv = ".venv"
+typeCheckingMode = "strict"
+include = ["src", "tests"]
+exclude = ["**/__pycache__", ".venv"]
+reportMissingTypeStubs = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = [".", "src"]
+markers = [
+    "integration: needs a local Postgres (PostGIS + pgvector) and/or Redis; run with -m integration",
+]
+addopts = "-ra --strict-markers -m 'not integration'"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.run]
+source = ["src/ingovo_search"]
+relative_files = true
+
+[tool.coverage.report]
+show_missing = true
+precision = 1
