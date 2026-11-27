@@ -199,7 +199,7 @@ Every variable is optional; the defaults match the local `docker compose` stack.
 - **Extracted from a larger product.** The production UI (the Next.js components for the search box, the results page and the AI chat) is not part of this repository; neither are the marketplace, accounts, listing management or the listing-level AI chat.
 - **Paid APIs.** Searching needs Gemini and Cohere keys; the Jev reranker needs a TypeSafe key. The offline tests and `--offline` parsing need none.
 - **Demo data, not real inventory.** The listings are synthetic. The LLM enrichment step that filled renovation state, orientation, light and noise scores in production is not included, so those columns are empty and their score terms stay neutral. With no user feedback recorded, the pooled-feedback term is zero, and named regions ("Balaton north shore") start from an LLM hint instead of learned centroids.
-- **Integration tests were not re-run for this extraction.** They target the schema in `db/schema.sql` and run against `docker compose`; the offline suite is what CI runs.
+- **Integration tests need the local database.** The 34 tests in `tests/integration/` run against the `docker compose` stack with the seeded demo data, and all of them pass; CI runs only the offline suite.
 - **Hungarian product copy.** User-facing strings (clarification questions, chips, some error messages) are Hungarian, like the product. Code comments cite sections (§) of the original internal design spec, which is not included.
 - **No authentication.** Sessions are anonymous signed cookies; the original product's accounts are out of scope.
 
