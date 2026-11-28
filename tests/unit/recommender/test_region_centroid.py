@@ -1,4 +1,4 @@
-"""Unit tests for §10 learned region centroids — the DB-free layer.
+"""Unit tests for the learned region centroids — the DB-free layer.
 
 `weighted_centroid`, `hint_district_score`, the positive-signal table, and the
 LLM hint call are pure / mockable and fully covered here. `matches_named_region`
@@ -235,7 +235,7 @@ async def test_matches_named_region_uses_cached_hint_without_llm() -> None:
 
 
 async def test_resolve_learned_region_scores_many_listings_db_free() -> None:
-    """Phase 3: resolve once, then score every candidate in memory.
+    """Resolve once, then score every candidate in memory.
 
     The per-listing `get_region_centroid` round-trip is the N+1 this removes:
     after one resolve, scoring more listings must not touch the session or LLM.
@@ -259,7 +259,7 @@ async def test_resolve_learned_region_scores_many_listings_db_free() -> None:
 
 
 async def test_resolve_cold_start_region_scores_many_districts_with_one_llm_call() -> None:
-    """Phase 3 cold start: one LLM hint per search, then in-memory district scoring."""
+    """Cold start: one LLM hint per search, then in-memory district scoring."""
     region = "Budai-hegyvidék"
     session = _StubSession(centroid_row=None)
     client = MockLlmClient({_hint_key(region): VALID_HINT})
@@ -272,3 +272,15 @@ async def test_resolve_cold_start_region_scores_many_districts_with_one_llm_call
     assert matcher.score(property_district="7") == 0.0  # unmatched district
     # No further DB writes/reads once resolved — the hint is reused from memory.
     assert session.execute_count == executes_after_resolve
+
+
+async def test_resolve_cold_start_region_without_a_model_scores_without_the_hint() -> None:
+    """A model outage must not fail the search: the region adds no signal, and nothing is cached."""
+    session = _StubSession(centroid_row=None)
+    client = MockLlmClient({})  # no fixture -> LlmError, as in an outage
+
+    matcher = await resolve_named_region(cast(AsyncSession, session), "Budai-hegyvidék", client=cast(LlmClient, client))
+
+    assert matcher.hints == []
+    assert matcher.score(property_district="12") == 0.0
+    assert session.execute_count == 1  # the centroid lookup only; no hint row was written

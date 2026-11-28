@@ -1,10 +1,10 @@
-"""§17.2 synthetic eval rating builder — LLM-as-judge over recommended candidates.
+"""Synthetic eval rating builder — LLM-as-judge over recommended candidates.
 
 For each query in `eval_set.starter.jsonl`, mirror the production search pipeline
 (parse → embed → recommend top-K), then ask Gemini to rate each (query, listing)
 pair on a 1-5 relevance scale. The resulting ratings populate
 `SyntheticEvalRating`, the ground-truth dataset that `calibrate_weights.py`
-consumes (§17.2.6).
+consumes.
 
 The judge uses a tight rubric so the ratings stay calibrated across queries:
 1 = irrelevant, 3 = mediocre match, 5 = excellent fit. Strict JSON output keeps
@@ -186,7 +186,7 @@ async def main_async(args: argparse.Namespace) -> None:
                     session, query, client=llm_client, emb_client=emb_client, top_k=args.top_k
                 )
             except Exception as exc:
-                print(f"  ⚠️  candidate fetch failed: {exc}", flush=True)
+                print(f"  WARNING: candidate fetch failed: {exc}", flush=True)
                 continue
             if not candidates:
                 print("  (no candidates)", flush=True)
@@ -196,7 +196,7 @@ async def main_async(args: argparse.Namespace) -> None:
                 try:
                     rating = await llm_judge(query, prop, client=llm_client)
                 except Exception as exc:
-                    print(f"  ⚠️  judge failed for {prop.id}: {exc}", flush=True)
+                    print(f"  WARNING: judge failed for {prop.id}: {exc}", flush=True)
                     continue
                 distribution[rating] = distribution.get(rating, 0) + 1
                 total_rated += 1

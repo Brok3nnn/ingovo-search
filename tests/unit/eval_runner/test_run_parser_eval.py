@@ -1,4 +1,4 @@
-"""Unit tests for `eval/run_parser_eval.py::check_dict_subset` (§17.1).
+"""Unit tests for `eval/run_parser_eval.py::check_dict_subset`.
 
 The eval scripts are standalone files, not an installed package, so the test
 loads `eval/run_parser_eval.py` directly via `importlib.util`. Pure-function
@@ -184,7 +184,7 @@ def test_load_gemini_api_key_strips_env_value(monkeypatch: pytest.MonkeyPatch, t
     assert _load_gemini_api_key() == "test-key"
 
 
-# --- §17.1 per-category recall + hallucinated-key gate ---
+# --- per-category recall + hallucinated-key gate ---
 
 find_hallucinated_keys = _module.find_hallucinated_keys
 gate_verdict = _module.gate_verdict

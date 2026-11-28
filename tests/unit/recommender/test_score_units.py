@@ -7,7 +7,7 @@ from ingovo_search.recommender.score import ScoreInputs, compute_score
 def test_compute_score_tolerates_missing_raw_embeddings() -> None:
     """A not-yet-embedded listing (no raw vector attributes at all) must score
     with zero embedding credit, not crash — freshly ingested rows enter the
-    candidate pool before the §5 backfill runs."""
+    candidate pool before the backfill runs."""
     listing = SimpleNamespace(
         id="L-new",
         created_at=None,

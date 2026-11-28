@@ -24,7 +24,7 @@ def _make_property(**overrides: object) -> Property:
 
 
 def test_build_factual_text_full_listing_matches_snapshot() -> None:
-    """Acceptance 1 from §5: deterministic structured-fields snapshot."""
+    """Deterministic structured-fields snapshot."""
     prop = _make_property(
         rooms="3",
         property_type="tégla lakás",

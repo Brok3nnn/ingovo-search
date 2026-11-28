@@ -1,4 +1,4 @@
-"""Unit tests for the rerank candidate summary (Phase 4 payload trim)."""
+"""Unit tests for the rerank candidate summary (the trimmed payload sent to the reranker)."""
 
 from __future__ import annotations
 

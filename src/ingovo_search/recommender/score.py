@@ -1,26 +1,24 @@
-"""§8 recommender scoring service — `compute_score` and the match percentages.
+"""Recommender scoring service — `compute_score` and the match percentages.
 
 `compute_score` is pure: given a listing, a `ParsedQuery`, the two query
 embeddings, and precomputed `pooled_signal` / `geo_score` values, it returns a
-`ScoreBreakdown` carrying every weighted contribution (Acceptance test 6) plus
-the total. The 10 weights match the design spec §8 step 5 and the formula
-matches the design spec §6.4 "Runtime pipeline" step 6.
+`ScoreBreakdown` carrying every weighted contribution plus the total, over
+ten weighted terms.
 
 `recommend`, the DB-backed orchestrator (SQL hard filter → vector pre-filter →
 per-candidate geo + pooled-signal lookups → score → sort top-N), lives in
 `ingovo_search.recommender.recommend`. It is integration-tested only;
 the pure scoring layer here carries the heavy unit-test coverage.
 
-Two deviations from the spec are deliberate and documented:
+Two design details worth knowing:
 
-- §8 step 5 names a single `freetext_emb` arg, but the §6.4 formula needs two
-  distinct embeddings: `query_emb` (the `semantic_query` embedding) for the
+- The score uses two distinct embeddings: `query_emb` (the `semantic_query` embedding) for the
   content + factual terms, and `freetext_pref_emb` (the combined
   `soft_prefs_freetext` embedding) for the `softpref_free` term. `compute_score`
   takes both.
 - The `pooled_signal` raw value can sit anywhere in roughly `[-2, 2]` (signal
   values), so it is mapped to `[0, 1]` via `0.5 + p/4` (clamped) before being
-  multiplied by `w_pooled`. The §6.4 formula does not specify normalisation.
+  multiplied by `w_pooled`.
 """
 
 from __future__ import annotations
@@ -43,7 +41,7 @@ from ingovo_search.recommender.quality_score import recency_score
 from ingovo_search.recommender.search_contract import NEARBY_MAX_DISTANCE_KM, ResultScope
 from ingovo_search.recommender.softpref_rules import SOFTPREF_RULES
 
-# §8 step 5 weights — v0 hand-set, then §17.2.6 calibrated.
+# Weights — v0 hand-set, then calibrated.
 # v0.1 (calibration #1, 179 ratings, geo x quality grid): `quality: 0.10 → 0.05`.
 # v0.2 (calibration #2, 179 ratings, content x geo x anchor grid):
 #   `content: 0.20 → 0.25`, `geo: 0.10 → 0.15`, `anchor: 0.10 → 0.075`.
@@ -51,7 +49,7 @@ from ingovo_search.recommender.softpref_rules import SOFTPREF_RULES
 #   `content: 0.25 → 0.20`, `factual: 0.15 → 0.10`, `softpref_core: 0.12 → 0.16`.
 # v0.4 (calibration #4, 354 ratings, content x geo x quality grid):
 #   NO WEIGHT CHANGE — the grid top-1 reproduced the current defaults. The
-#   M1 §4 enrichment backfill (cleaned_description + summaries + populated
+# enrichment backfill (cleaned_description + summaries + populated
 #   `quality_score`) alone moved avg nDCG@10 from 0.8601 (v0.3 measurement)
 #   to 0.8798 on the same 354 ratings (+1.97 pp), with weights unchanged.
 #   The hidden win is in the inputs: Cohere now embeds cleaner text, and the
@@ -78,8 +76,7 @@ class ScoreBreakdown(BaseModel):
     """Per-listing weighted contribution per scoring term, plus the total.
 
     Every field is the term's *weighted* contribution (`w_term * term_value`),
-    so summing the 10 term fields equals `total`. Acceptance 6 requires all
-    ten term names to appear.
+    so summing the 10 term fields equals `total`.
     """
 
     model_config = {"frozen": True}
@@ -103,13 +100,13 @@ class ScoreBreakdown(BaseModel):
 
 
 class ScoredCandidate(BaseModel):
-    """One ranked listing returned to §14 API consumers.
+    """One ranked listing returned to API consumers.
 
     Carries the listing id, total score, full per-term breakdown, and the
     minimum listing metadata the clarification policy + frontend need
     without the full ORM row. `district` and `city` mirror `HardFilters` so
     the split-top-interpretations clarification trigger can spot geographic
-    drift across the top-N. `ai_narrative` is the §17.3 narrator output that
+    drift across the top-N. `ai_narrative` is the narrator output that
     the search-results UX renders verbatim — present on hero rows (top 1-3)
     and `None` on secondary rows that only need the compact card treatment.
     """
@@ -122,8 +119,8 @@ class ScoredCandidate(BaseModel):
     match_percent: int = Field(default=1, ge=1, le=100)
     result_scope: ResultScope = ResultScope.EXACT
     distance_km: float | None = Field(default=None, ge=0.0, le=NEARBY_MAX_DISTANCE_KM)
-    # Internal R4 diagnostics. R7 promotes the allowed public subset; excluding
-    # it here prevents an internal OUT_OF_SCOPE state from leaking through API.
+    # Internal diagnostics; only the subset below is public. Excluding it
+    # here prevents an internal OUT_OF_SCOPE state from leaking through the API.
     match_breakdown: MatchBreakdown | None = Field(default=None, exclude=True)
     # The allowed public subset the line above refers to: the per-criterion
     # scores only, with the raw scope/distance and the weighting internals left
@@ -187,7 +184,7 @@ _SEMANTIC_FULL_MATCH: float = 0.6
 # Pure-semantic matches top out here rather than a literal 100%.
 _SEMANTIC_DISPLAY_CEILING: float = 0.96
 
-# Amenity verification (§ honest match). When the buyer explicitly requested a
+# Amenity verification. When the buyer explicitly requested a
 # concrete amenity (pool, fireplace, …) that the listing's text does NOT attest,
 # we (a) downrank its total and (b) cap its visible match %, so a pool-less villa
 # can't read 83% for "úszómedencés villa". A fully-unverified request multiplies
@@ -314,7 +311,7 @@ def cosine_similarity(a: Sequence[float] | None, b: Sequence[float] | None) -> f
 
 
 def softpref_core_match(prefs: Sequence[str], listing: Any) -> float:
-    """Fraction of `prefs` whose Appendix A rule evaluates `True` on `listing`."""
+    """Fraction of `prefs` whose `softpref_rules` rule evaluates `True` on `listing`."""
     if not prefs:
         return 0.0
     matches = 0
@@ -353,7 +350,7 @@ def _mean_anchor_score(anchors: Anchors, listing: Any) -> float:
 
 
 def _normalize_pooled(value: float) -> float:
-    """Map a raw §9 pooled-signal value (roughly `[-2, 2]`) into `[0, 1]`."""
+    """Map a raw pooled-signal value (roughly `[-2, 2]`) into `[0, 1]`."""
     return _clamp01(0.5 + value / 4.0)
 
 
@@ -362,7 +359,7 @@ def _raw_embedding_similarity(listing: Any, attr: str, query_vec: Sequence[float
 
     The batch path pre-computes similarities in SQL and passes them in; this
     fallback only runs for listings missing from that dict — typically rows
-    whose §5 embedding backfill hasn't happened yet. The scoring fetch
+    whose embedding backfill hasn't happened yet. The scoring fetch
     (`candidate_rows.SCORING_PROPERTY_COLUMNS`) deliberately doesn't load the raw vectors,
     so a missing attribute (or NULL vector) must mean "no credit", never a
     crash: a freshly ingested, not-yet-embedded listing in the candidate
@@ -384,7 +381,7 @@ class ScoreInputs:
     the batch path has no precomputed value for. The similarities, the pooled
     signal and the geo score are the batch path's precomputed per-listing values.
     `explore`, `now` and `weights` pin the randomness, the clock and the per-term
-    weights (tests, §17.2.6 calibration).
+    weights (tests, calibration).
     """
 
     query_emb: Sequence[float] | None = None
@@ -403,12 +400,12 @@ DEFAULT_SCORE_INPUTS: Final = ScoreInputs()
 
 
 def compute_score(listing: Any, query: ParsedQuery, inputs: ScoreInputs = DEFAULT_SCORE_INPUTS) -> ScoreBreakdown:
-    """Weighted §6.4 score for one listing under one parsed query.
+    """Weighted score for one listing under one parsed query.
 
-    `inputs.explore` defaults to `random.random()` per §6.4 "exploration
-    injection"; tests pin it for determinism. `inputs.now` is forwarded to
+    `inputs.explore` defaults to `random.random()` (exploration injection);
+    tests pin it for determinism. `inputs.now` is forwarded to
     `recency_score` for the same reason. `inputs.weights` overrides the
-    module-level `WEIGHTS` dict per term — used by §17.2.6 grid-search
+    module-level `WEIGHTS` dict per term — used by the grid-search
     calibration. Missing keys fall back to the default value, so a partial
     override (e.g. only `{"geo": 0.18}`) leaves the other nine terms at their
     hand-set defaults.

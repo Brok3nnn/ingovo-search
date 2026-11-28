@@ -1,4 +1,4 @@
-"""What the §17.3 narrator model is told.
+"""What the narrator model is told.
 
 The Hungarian system prompt and its cache version, the per-locale output-language
 directive, and the user message rendered from the listing, the parsed query and the
@@ -253,7 +253,7 @@ type NarratorMood = Literal["enthusiastic", "cautious", "experienced", "factual"
 def _derive_mood(breakdown: ScoreBreakdown) -> NarratorMood:
     """Pick the AI agent's tone for this listing based on score signals.
 
-    Phase 6 — drives the narrator's voice so the body text feels less
+    Drives the narrator's voice so the body text feels less
     templated across results. Four moods:
 
     - enthusiastic: strong total + good fit (the agent is genuinely sold)

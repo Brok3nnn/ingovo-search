@@ -1,4 +1,4 @@
-"""R4 absolute buyer-query match percentage tests."""
+"""Absolute buyer-query match percentage tests."""
 
 from __future__ import annotations
 

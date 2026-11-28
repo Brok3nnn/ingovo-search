@@ -1,4 +1,4 @@
-"""§8 soft-preference rule table — the full Appendix A vocabulary.
+"""Soft-preference rule table — the full v0 vocabulary.
 
 One predicate per soft-pref tag, mapping the listing's structured features to
 a `bool`. `softpref_core_match` (in `score.py`) counts how many of a query's
@@ -21,7 +21,7 @@ from ingovo_search.recommender.parser_schema import SoftPrefTag
 # access unwraps, class-level annotation does not). `ListingFeatures` in
 # `ingovo_search.types.common` still documents the expected shape.
 #
-# `near_metro` reads the §12 nightly POI job's `features["poi_m"]["metro"]`
+# `near_metro` reads the nightly POI job's `features["poi_m"]["metro"]`
 # distance (metres, populated from the OSM `poi` table). Missing data ->
 # False: the tag simply earns no match credit, which lowers the soft score
 # but never excludes the listing.

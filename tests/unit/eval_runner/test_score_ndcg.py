@@ -1,4 +1,4 @@
-"""Unit tests for `eval/score_ndcg.py` (§17.2.6 graded NDCG@10 scorer).
+"""Unit tests for `eval/score_ndcg.py` (graded NDCG@10 scorer).
 
 Pure math — no DB. The async `main()` orchestrator that pulls
 `SyntheticEvalRating` rows from Postgres is integration concern. We exercise

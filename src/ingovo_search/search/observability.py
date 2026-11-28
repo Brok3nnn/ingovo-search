@@ -1,4 +1,4 @@
-"""The §16 hard-filter count and the R11 per-search observability line."""
+"""The hard-filter count and the per-search observability line."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from ingovo_search.search.constants import search_logger
 def count_hard_filters(parsed: ParsedQuery) -> int:
     """Number of distinct hard-filter constraints carried by the parsed query.
 
-    Used as a §16 SearchLog field so the weekly report can correlate
+    Used as a SearchLog field so the weekly report can correlate
     return-count with the strictness of the input filter set. Empty
     lists and `None` count as "no filter".
     """
@@ -41,7 +41,7 @@ def count_hard_filters(parsed: ParsedQuery) -> int:
 
 @dataclass(frozen=True, slots=True)
 class SearchObservation:
-    """What one finished search is measured by (R11.1-R11.5)."""
+    """What one finished search is measured by."""
 
     results: list[ScoredCandidate]
     total_candidates: int
@@ -51,7 +51,7 @@ class SearchObservation:
 
 
 def log_search_observability(parsed: ParsedQuery, observation: SearchObservation, *, logger: Any | None = None) -> None:
-    """R11.1-R11.5 structured per-search observability for monitoring/alerting."""
+    """Structured per-search observability for monitoring and alerting."""
     results = observation.results
     total_candidates = observation.total_candidates
     relaxation_path = observation.relaxation_path

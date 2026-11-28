@@ -1,9 +1,8 @@
-"""Unit tests for §14 step 7 clarification policy.
+"""Unit tests for the clarification policy.
 
-Acceptance 3 — `apply_clarification` returns a new `ParsedQuery` without
-introducing a clarification-specific scoring weight.
-Acceptance 8 — `should_clarify` returns at most one clarification and never
-blocks results.
+`apply_clarification` returns a new `ParsedQuery` without introducing a
+clarification-specific scoring weight; `should_clarify` returns at most one
+clarification and never blocks results.
 """
 
 from __future__ import annotations
@@ -281,7 +280,7 @@ def test_ambiguous_geo_still_clarifies_with_a_thin_pool() -> None:
 
 
 def test_should_clarify_signature_returns_one_or_none() -> None:
-    """Acceptance 8 — the API is `Clarification | None`, never a list."""
+    """The API is `Clarification | None`, never a list."""
     parsed = ParsedQuery(conflict_flag=True, parse_confidence=ParseConfidence(x=0.1))
     result = should_clarify(parsed, _strong_pool(size=2))
     assert result is None or isinstance(result, Clarification)
@@ -457,7 +456,7 @@ def test_policy_reexports_the_answer_side_and_the_schema() -> None:
     assert Clarification is clarification_schema.Clarification
 
 
-# --- Acceptance 3: no clarification-specific scoring weight ---------------
+# --- no clarification-specific scoring weight ---------------
 
 
 def test_score_breakdown_shape_is_unchanged() -> None:

@@ -55,22 +55,22 @@ async def await_image_analysis(
         await cancel_image_task(task)
         search_logger.warning(
             "image analysis timed out; searching on the text alone",
-            extra={"request_id": request_id, "timeout_ms": timeout_ms, "image_count": image_count},
+            request_id=request_id,
+            timeout_ms=timeout_ms,
+            image_count=image_count,
         )
         return parsed, ImageContextSummary(accepted_images=image_count, applied=False, reason="unavailable")
     except Exception as exc:  # noqa: BLE001
         # Deliberate fail-soft boundary (see the docstring): `GoogleAiClient.complete`
-        # re-raises the provider SDK's own exception once the vision chain is
-        # exhausted, and a stale cache payload surfaces as a pydantic error, so
-        # the set is open-ended. Swallowing is correct — the photo is optional
-        # and the typed query still runs — but the traceback goes to the log.
+        # raises `LlmError` once the vision chain is exhausted, and a stale cache
+        # payload surfaces as a pydantic error, so the set is open-ended. Swallowing
+        # is correct — the photo is optional and the typed query still runs — but
+        # the traceback goes to the log.
         search_logger.warning(
             "image analysis failed on every model; searching on the text alone",
-            extra={
-                "request_id": request_id,
-                "image_count": image_count,
-                "error": f"{type(exc).__name__}: {exc}"[:200],
-            },
+            request_id=request_id,
+            image_count=image_count,
+            error=f"{type(exc).__name__}: {exc}"[:200],
             exc_info=exc,
         )
         return parsed, ImageContextSummary(accepted_images=image_count, applied=False, reason="unavailable")

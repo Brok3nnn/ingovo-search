@@ -1,8 +1,7 @@
-"""§5 embedding integration + scale tests.
+"""Embedding integration + scale tests.
 
-Acceptance 3 (`embed_listing` writes both vectors to the DB, verified by raw
-SQL count) and acceptance 6 (500-listing scale run with batched call count and
-bounded wall time) live here.
+`embed_listing` writes both vectors to the DB (verified by a raw SQL count), and a
+500-listing scale run checks the batched call count and a bounded wall time.
 """
 
 from __future__ import annotations
@@ -44,7 +43,7 @@ async def session() -> AsyncIterator[AsyncSession]:
 
 
 async def test_embed_listing_writes_both_vectors_to_db(session: AsyncSession) -> None:
-    """Acceptance 3 from §5 — verified by raw SQL on the embedding columns."""
+    """Verified by raw SQL on the embedding columns."""
     source_tag = f"mock-embed-single-{uuid4()}"
     prop_id = await _insert_property(session, source_tag, index=0)
     await session.flush()
@@ -82,7 +81,7 @@ async def test_embed_listing_writes_both_vectors_to_db(session: AsyncSession) ->
 
 
 async def test_embed_listings_batch_500_rows_uses_batched_api(session: AsyncSession) -> None:
-    """Acceptance 6 from §5 — 500 listings, all populated, batched call count, bounded wall time."""
+    """500 listings, all populated, batched call count, bounded wall time."""
     source_tag = f"mock-embed-stress-{uuid4()}"
     ids = [await _insert_property(session, source_tag, index=index) for index in range(500)]
     await session.flush()

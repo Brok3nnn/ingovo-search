@@ -1,33 +1,23 @@
-"""§17.2.3 HU description generator.
+"""Hungarian descriptions for the synthetic listings, in three quality tiers.
 
-Synthesises Hungarian property descriptions across three deliberate quality
-tiers so the §17.2.4 assembler can produce a dataset that mirrors the noise
-profile of real-world listings:
+The assembler (`assemble.py`) uses these tiers to build a dataset with the noise
+profile of real listing feeds. Every tier is a local template: no model call, no
+network.
 
-- **great** (33%) — rich, neighbourhood detail, specific features. Goes
-  through a Tier-L LLM call (`LlmClient` injected; production wires
-  `GoogleAiClient`).
-- **templated** (34%) — pure-Python template + variable substitution.
-  Generic phrasing that mimics the formulaic copy most agency feeds ship.
-- **skeletal** (33%) — under 50 words, minimal info. Built from the
-  structured fields alone.
+- **great** (33%) — the longest tier, three sentences built from the structured
+  fields (`generate_great_description`).
+- **templated** (34%) — formulaic sentences stitched from a small phrase bank,
+  like the copy most agency feeds ship.
+- **skeletal** (33%) — under 50 words, the structured fields alone.
 
 Additional noise:
 
 - 15% of all listings have one random structured field deliberately set to
   `None` (`null_one_field`).
-- 10% are "obviously bad" cases (`inject_bad_case`): mislabeled type,
-  missing photos, contradictions in the description vs. the structured
-  fields.
+- 10% are "obviously bad" cases (`inject_bad_case`): a mislabelled building
+  type, a description that contradicts the structured fields, or a missing area.
 
-Mass generation is **gated** on a `[Human review required]` task — founder
-samples 30 outputs and signs off before the §17.2.4 assembler uses the LLM
-path. Until then, the assembler can call `generate_description(tier=...)`
-with a `MockLlmClient` to keep CI deterministic.
-
-Pure Python; HU prompt strings live alongside the §4 / §7 / §11 [PLACEHOLDER]
-prompts and are tagged with `DESCRIBE_PROMPT_VERSION` so the §13 cache layer
-can invalidate cleanly when founder rewrites them.
+Pure Python. Pass a seeded `random.Random` for a reproducible dataset.
 """
 
 from __future__ import annotations
@@ -35,17 +25,12 @@ from __future__ import annotations
 import random
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Literal, Protocol
-
-from ingovo_search.lib.llm import LlmClient, LlmRequest
-from ingovo_search.lib.llm_models import TIER_L_RERANK
-
-DESCRIBE_PROMPT_VERSION = "describe/v0-skeleton"
+from typing import Any, Literal
 
 DescriptionTier = Literal["great", "templated", "skeletal"]
 
-# Tier distribution per §17.2.3. Numbers must sum to ~1.0; the ±1pp from
-# rounding lands on `templated` (the largest bucket).
+# Tier distribution. Numbers must sum to ~1.0; the ±1pp from rounding lands on
+# `templated` (the largest bucket).
 TIER_PROBABILITIES: dict[DescriptionTier, float] = {
     "great": 0.33,
     "templated": 0.34,
@@ -65,6 +50,15 @@ NULLABLE_STRUCTURED_FIELDS: tuple[str, ...] = (
     "renovation_state",
     "orientation",
 )
+
+# The Hungarian label of each building type, for titles and descriptions.
+BUILD_TYPE_LABELS: dict[str, str] = {
+    "panel": "panel",
+    "tegla": "tégla",
+    "csaladi_haz": "családi ház",
+    "sorhaz": "sorház",
+    "uj_epitesu": "új építésű",
+}
 
 
 # Templated-tier HU phrases. Picked at random and concatenated; intentionally
@@ -104,20 +98,21 @@ _TEMPLATED_CLOSERS: tuple[str, ...] = (
 class ListingSeed:
     """Minimum fields the description generator reads.
 
-    Mirrors the subset of `Property` columns the §17.2.4 assembler emits
-    before enrichment runs. Free-form: callers can pass any dict-like object.
+    The structured fields the assembler samples for one listing, before any
+    description exists.
     """
 
     city: str
     district: str | None
-    property_type: str  # "panel" | "tegla" | "csaladi_haz" | ...
+    property_type: str  # building type: "panel" | "tegla" | "csaladi_haz" | ...
     rooms: int | None
     area_m2: float | None
     price_huf: int
 
 
-class _DescribeLlmClient(Protocol):
-    async def complete(self, req: LlmRequest) -> str: ...
+def build_type_label(build_type: str) -> str:
+    """The Hungarian label of a building type ("csaladi_haz" -> "családi ház")."""
+    return BUILD_TYPE_LABELS.get(build_type, build_type.replace("_", " "))
 
 
 def _format_int(value: int | float | None) -> str:
@@ -126,34 +121,23 @@ def _format_int(value: int | float | None) -> str:
     return f"{int(value):,}".replace(",", " ")
 
 
-def render_great_user_prompt(seed: ListingSeed) -> str:
-    """Tier-L user prompt — `[PLACEHOLDER]` until founder rewrites the HU copy."""
+def generate_great_description(seed: ListingSeed) -> str:
+    """The longest tier: three sentences built from the structured fields."""
+    location = (
+        f"Budapest {seed.district}. kerületében"
+        if seed.city == "Budapest" and seed.district
+        else f"{seed.city} városában"
+    )
+    room_sentence = f"A {seed.rooms} szobás" if seed.rooms is not None else "Az átgondolt elrendezésű"
+    area_sentence = f", nagyjából {seed.area_m2:.0f} négyzetméteres" if seed.area_m2 is not None else ""
     return (
-        "[PLACEHOLDER: HU prompt that asks for a rich, neighbourhood-aware "
-        "description of the listing below. Tone: warm, informative, no "
-        "marketing fluff. 120-180 words. Mention 2-3 concrete amenities + "
-        "1 specific neighbourhood feature.]\n\n"
-        f"city={seed.city}, district={seed.district}, property_type="
-        f"{seed.property_type}, rooms={seed.rooms}, area_m2={seed.area_m2}, "
-        f"price_huf={seed.price_huf}"
+        f"{room_sentence}{area_sentence} {build_type_label(seed.property_type)} {location} kínál kényelmes, "
+        "jól használható tereket. "
+        "A leírás alapján világos nappali, praktikus tárolási lehetőségek és mindennapi élethez közeli "
+        "szolgáltatások várhatók a közelben. "
+        "Jó választás lehet annak, aki rendezett környezetet, kiszámítható közlekedést és hosszabb távon is "
+        "élhető otthont keres."
     )
-
-
-GREAT_SYSTEM_PROMPT = (
-    "[PLACEHOLDER: HU system prompt for the synthetic 'great-tier' description "
-    "generator. Founder finalises the wording during the §17.2.3 30-sample "
-    "review.]"
-)
-
-
-async def generate_great_description(seed: ListingSeed, *, client: LlmClient) -> str:
-    """Tier-L LLM call. Returns whatever the model emits verbatim."""
-    req = LlmRequest(
-        model=TIER_L_RERANK,
-        system=GREAT_SYSTEM_PROMPT,
-        user=render_great_user_prompt(seed),
-    )
-    return await client.complete(req)
 
 
 def generate_templated_description(seed: ListingSeed, *, rng: random.Random | None = None) -> str:
@@ -172,7 +156,7 @@ def generate_templated_description(seed: ListingSeed, *, rng: random.Random | No
 
 
 def generate_skeletal_description(seed: ListingSeed) -> str:
-    """Sub-50-word description — the kind of feed that triggers the §6 quality gate."""
+    """Sub-50-word description — the thin feed the listing quality score penalises."""
     parts: list[str] = []
     if seed.rooms is not None:
         parts.append(f"{seed.rooms} szoba")
@@ -185,16 +169,15 @@ def generate_skeletal_description(seed: ListingSeed) -> str:
     return ", ".join(parts) + "."
 
 
-async def generate_description(
+def generate_description(
     seed: ListingSeed,
     *,
     tier: DescriptionTier,
-    client: LlmClient,
     rng: random.Random | None = None,
 ) -> str:
     """Dispatch by tier — caller decides upstream what fraction goes where."""
     if tier == "great":
-        return await generate_great_description(seed, client=client)
+        return generate_great_description(seed)
     if tier == "templated":
         return generate_templated_description(seed, rng=rng)
     return generate_skeletal_description(seed)
@@ -265,12 +248,7 @@ class DescriptionRecord:
     bad_case: bool = False
 
 
-async def generate_dataset(
-    seeds: Sequence[ListingSeed],
-    *,
-    client: LlmClient,
-    rng: random.Random,
-) -> list[DescriptionRecord]:
+def generate_dataset(seeds: Sequence[ListingSeed], *, rng: random.Random) -> list[DescriptionRecord]:
     """Generate one description per seed, applying tier + null + bad-case noise."""
     records: list[DescriptionRecord] = []
     n = len(seeds)
@@ -293,7 +271,7 @@ async def generate_dataset(
             seed = new_seed
 
         tier = choose_tier(rng=rng)
-        description = await generate_description(seed, tier=tier, client=client, rng=rng)
+        description = generate_description(seed, tier=tier, rng=rng)
 
         bad = False
         if index in bad_indices:

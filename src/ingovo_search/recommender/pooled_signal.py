@@ -1,9 +1,8 @@
-"""§9 pooled-signal kNN — query-pooled collaborative filtering.
+"""Pooled-signal kNN — query-pooled collaborative filtering.
 
 `pooled_signal` aggregates buyer signals (±1 / favorite / contact / view / hide)
 that other users left on a property, weighted by how similar *their* query was
-to the current one. The query embedding — not the user — is the pooling key
-(the design spec §6.6).
+to the current one. The query embedding — not the user — is the pooling key.
 
 The single-property path uses a direct asyncpg scalar aggregate so the hot
 request path avoids SQLAlchemy and pgvector codec overhead. A DB-free fallback
@@ -37,7 +36,7 @@ TIME_WINDOW_DAYS = 365
 # multiplied by exp(-age_seconds / DECAY_WINDOW_SECONDS).
 DECAY_WINDOW_SECONDS = 90 * 24 * 60 * 60  # 7_776_000
 
-# Signal value per interaction type — see the design spec Appendix C.
+# Signal value per interaction type (the v0 hand-set values).
 # `refinement_*` signals are intentionally absent: they never enter the pool.
 SIGNAL_WEIGHTS: dict[str, float] = {
     "thumb_up": 1.0,

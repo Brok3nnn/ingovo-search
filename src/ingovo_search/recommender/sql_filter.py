@@ -1,7 +1,7 @@
-"""§8 SQL hard filter — strict WHERE clause built from `HardFilters`.
+"""SQL hard filter — strict WHERE clause built from `HardFilters`.
 
 `build_hard_filter_query` is pure: it turns a `HardFilters` value into a
-SQLAlchemy `TextClause` + params dict, ready to execute. Per §8 step 1 the
+SQLAlchemy `TextClause` + params dict, ready to execute. The
 missing-data policy is split by field kind. Verified location filters exclude
 `NULL` because an unknown city or district is not geographically eligible.
 Other categorical fields may retain unknown rows for downstream uncertainty;
@@ -147,7 +147,7 @@ def _add_categorical(out: _ClauseSet, hard_filters: HardFilters) -> None:
     # parse rules in one
     # place (the `ingovo_room_count` SQL function in schema.sql), half rooms compare
     # numerically (2.5 >= 2), and an unparseable shape is NULL rather than a
-    # cast error. Exact match keeps the §8 categorical policy — unknown rows
+    # cast error. Exact match keeps the categorical policy — unknown rows
     # stay for downstream uncertainty — while `rooms_min` is numeric and drops
     # NULL like every other numeric filter. `rooms_count` is deliberately not on
     # the ORM model (fresh-DB create_all hazard), so this is the one reader.
@@ -189,7 +189,7 @@ def build_hard_filter_clauses(
 ) -> tuple[list[str], dict[str, object], list[str]]:
     """Render `HardFilters` into `(clauses, params, array_param_names)`.
 
-    Pure clause construction shared by every statement that applies the §8 hard
+    Pure clause construction shared by every statement that applies the hard
     filter — the canonical `SELECT id` query, plus the homepage probe's `COUNT`,
     price-percentile, and preview-sample statements. Callers join `clauses` with
     ` AND `, bind `array_param_names` as `ARRAY(String())`, and pass `params`.
@@ -216,7 +216,7 @@ def build_hard_filter_where(
     city_scope: Sequence[str] | None = None,
     district_scope: Sequence[str] | None = None,
 ) -> tuple[str, dict[str, object], list[str]]:
-    """Return the §8 hard filter as `(where_sql, params, array_param_names)`.
+    """Return the hard filter as `(where_sql, params, array_param_names)`.
 
     `where_sql` is a ready-to-embed boolean expression (no `WHERE` keyword) that
     any `... FROM properties WHERE {where_sql}` statement can reuse.
@@ -244,7 +244,7 @@ def build_hard_filter_query(
     where_sql, params, array_params = build_hard_filter_where(
         hard_filters, city_scope=city_scope, district_scope=district_scope
     )
-    stmt = bind_array_params(text("SELECT id FROM properties WHERE " + where_sql), array_params)  # noqa: S608 -- where_sql is the §8 clause list, built from constant fragments with every value bound
+    stmt = bind_array_params(text("SELECT id FROM properties WHERE " + where_sql), array_params)  # noqa: S608 -- where_sql is the clause list, built from constant fragments with every value bound
     return stmt, params
 
 
@@ -255,7 +255,7 @@ async def run_hard_filter(
     city_scope: Sequence[str] | None = None,
     district_scope: Sequence[str] | None = None,
 ) -> list[str]:
-    """Execute the §8 hard-filter SQL and return matching property IDs."""
+    """Execute the hard-filter SQL and return matching property IDs."""
     stmt, params = build_hard_filter_query(hard_filters, city_scope=city_scope, district_scope=district_scope)
     try:
         result = await session.execute(stmt, params)

@@ -19,12 +19,16 @@ FORBIDDEN_REGEX = re.compile("|".join(FORBIDDEN_KEYWORDS), re.IGNORECASE)
 PACKAGE = Path(__file__).resolve().parents[3] / "src" / "ingovo_search"
 SCOPED_FILES = (
     "recommender/score.py",
+    "recommender/recommend.py",
     "recommender/softpref_rules.py",
     "recommender/ranking_guardrails.py",
     "recommender/canonical_ranking.py",
     "recommender/match_percent.py",
     "recommender/rerank.py",
+    "recommender/rerank_jev.py",
     "recommender/parser_schema.py",
+    "search/scoring.py",
+    "search/reranking.py",
     "db/models/property.py",
 )
 

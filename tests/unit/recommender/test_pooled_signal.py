@@ -1,4 +1,4 @@
-"""Unit tests for §9 pooled-signal kNN — the DB-free layer.
+"""Unit tests for the pooled-signal kNN — the DB-free layer.
 
 `pooled_signal` uses an asyncpg scalar fast path in integration and a DB-free
 Python fallback in unit tests, while `pooled_signals` keeps a raw-SQL batch
@@ -6,7 +6,7 @@ aggregate. End-to-end SQL behaviour is covered by the integration suite in
 `tests/integration/recommender/test_pooled_signal.py`.
 
 These unit tests cover what does not need a database: the signal-weight table
-matches Appendix C, the rendered SQL embeds the tuning constants, parameter
+holds the v0 values, the rendered SQL embeds the tuning constants, parameter
 binding is correct, and the Python-side result handling (NULL → 0.0, error
 wrapping, dimension validation) behaves.
 """
@@ -35,7 +35,7 @@ from ingovo_search.recommender.pooled_signal import (
 )
 from ingovo_search.types.errors import DbError
 
-# Appendix C signal-to-weight mapping — the v0 hand-set values.
+# The signal-to-weight mapping — the v0 hand-set values.
 APPENDIX_C_WEIGHTS = {
     "thumb_up": 1.0,
     "thumb_down": -1.0,
@@ -159,7 +159,7 @@ async def test_returns_scalar_value() -> None:
 
 
 async def test_returns_zero_when_no_qualifying_interactions() -> None:
-    """Acceptance 1: an empty neighbour set yields 0.0."""
+    """An empty neighbour set yields 0.0."""
     session = _session(rows=[])
     result = await pooled_signal(cast(AsyncSession, session), "prop-1", _query_vec())
     assert result == 0.0

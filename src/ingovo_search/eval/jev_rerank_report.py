@@ -24,7 +24,7 @@ from ingovo_search.eval.jev_rerank_offline import (
 
 
 def _status(passed: bool) -> str:
-    return "✅" if passed else "❌"
+    return "pass" if passed else "FAIL"
 
 
 def render_markdown(  # noqa: PLR0913 -- the run plus one keyword per optional section of the report

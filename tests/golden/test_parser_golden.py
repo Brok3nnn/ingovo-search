@@ -1,4 +1,4 @@
-"""Golden snapshot of the deterministic query parser over the starter eval set (P5.1).
+"""Golden snapshot of the deterministic query parser over the starter eval set.
 
 Every query of ``eval/golden/eval_set.starter.jsonl`` (141 real-looking Hungarian searches)
 goes through both deterministic entry points without an LLM; the ``ParsedQuery`` each

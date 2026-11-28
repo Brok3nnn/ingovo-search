@@ -1,4 +1,4 @@
-"""Unit tests for §10 geo scoring — the pure-math layer.
+"""Unit tests for the geo scoring — the pure-math layer.
 
 `geo_score` and its component functions are pure, so they are fully covered
 here. The DB/LLM-backed `matches_named_region` is exercised in
@@ -42,16 +42,16 @@ def test_haversine_one_degree_latitude() -> None:
     assert math.isclose(haversine_km(47.0, 19.0, 48.0, 19.0), 111.19, abs_tol=0.2)
 
 
-# --- matches_river_side (acceptance 1 + 2) -----------------------------------
+# --- matches_river_side -----------------------------------
 
 
 def test_river_side_buda_district_matches_buda() -> None:
-    """§10 acceptance 1: district 12 + side 'Buda' → 1.0."""
+    """District 12 + side 'Buda' → 1.0."""
     assert matches_river_side("12", "Buda") == 1.0
 
 
 def test_river_side_pest_district_does_not_match_buda() -> None:
-    """§10 acceptance 2: district 7 + side 'Buda' → 0.0."""
+    """District 7 + side 'Buda' → 0.0."""
     assert matches_river_side("7", "Buda") == 0.0
 
 
@@ -101,15 +101,15 @@ def test_gaussian_region_score_no_spread_is_zero() -> None:
     assert gaussian_region_score(1.0, 0.0) == 0.0
 
 
-def test_gaussian_at_acceptance_3_coordinates() -> None:
-    """§10 acceptance 3 uses centroid (47.5, 19.0), spread_km=2.
+def test_gaussian_at_the_centroid_and_near_it() -> None:
+    """A centroid at (47.5, 19.0) with spread_km=2.
 
-    Property at the centroid scores 1.0. The spec also annotates property at
-    (47.5, 19.02) as "≈0.95" — but that offset is ~1.50 km, and the spec's own
+    Property at the centroid scores 1.0. The original design note annotated a
+    property at (47.5, 19.02) as "≈0.95" — but that offset is ~1.50 km, and the
     formula exp(-(d/spread)^2) yields ~0.57 there, not 0.95. Reaching 0.95
     needs an offset of ~0.006° (~0.45 km). This test asserts what the formula
-    actually produces; the "≈0.95" annotation in the spec is inconsistent with
-    its stated coordinates + spread.
+    actually produces; the "≈0.95" annotation is inconsistent with its stated
+    coordinates + spread.
     """
     distance = haversine_km(47.5, 19.0, 47.5, 19.02)
     assert math.isclose(distance, 1.50, abs_tol=0.05)

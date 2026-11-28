@@ -2,8 +2,8 @@
 
 Importing this module registers every table with `Base.metadata`. The
 authoritative DDL (extensions, generated columns, HNSW and GIST indexes) is
-`ingovo_search/db/schema.sql`; `tests/unit/db/test_schema_matches_models.py`
-keeps the two in step.
+`ingovo_search/db/schema.sql`; `tests/unit/db/test_schema.py` keeps the two in
+step.
 """
 
 from ingovo_search.db.models.base import Base

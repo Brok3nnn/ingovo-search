@@ -177,9 +177,9 @@
    "score": "v3-authoritative-rank-aligned-match",
    "search_contract": "search-contract-v3-authoritative-order-administrative-geo-scope",
    "match_percent": "match-percent-v2-near-proximity",
-   "canonical_ranking": "authoritative-order-v2",
+   "canonical_ranking": "authoritative-order-v3-running-minimum",
    "rerank_prompt": "rerank/v4-locale-directive",
-   "response_cache": "response-v23-map-coordinates"
+   "response_cache": "response-v24-running-minimum-match"
   },
   "relaxed": false,
   "relaxation_path": [],

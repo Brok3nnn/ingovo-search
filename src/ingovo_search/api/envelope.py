@@ -1,4 +1,4 @@
-"""§14 step 10 — the `{"ok": bool, "data": ..., "error": ...}` response envelope.
+"""The `{"ok": bool, "data": ..., "error": ...}` response envelope.
 
 `Envelope[T]` is the shape every successful route returns. `ErrorBody`
 carries a code + message + optional details on the failure path. Three
@@ -133,7 +133,7 @@ async def _http_exception_handler(_request: Request, exc: Exception) -> JSONResp
 
 
 def install_exception_handlers(app: FastAPI) -> None:
-    """Register the §14 step-10 exception → envelope mappings on `app`.
+    """Register the exception → envelope mappings on `app`.
 
     Order matters: more-specific subclasses first, the `IngovoError`
     base last. FastAPI's `add_exception_handler` does its own most-

@@ -1,9 +1,9 @@
-"""§5 embedding orchestrator — fetch property, build inputs, embed, persist.
+"""Embedding orchestrator — fetch property, build inputs, embed, persist.
 
 `embed_listing` handles one property and uses the cache (cheap re-embeds for
 re-runs). `embed_listings_batch` fans out across many properties using the
 batched embedding API (≤ `COHERE_BATCH_LIMIT` texts per call) — the scale-test
-path. Both call sites land vectors via `insert_embedding` from §1 so the
+path. Both call sites land vectors via `insert_embedding` so the
 recommender's kNN helpers see them immediately.
 """
 

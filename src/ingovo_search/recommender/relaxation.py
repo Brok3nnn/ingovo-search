@@ -1,6 +1,6 @@
-"""M3 hard-filter relaxation — recover from zero-result searches.
+"""Hard-filter relaxation — recover from zero-result searches.
 
-When `recommend()` returns an empty candidate list, the §14 search pipeline
+When `recommend()` returns an empty candidate list, the search pipeline
 walks `RELAXATION_STRATEGY` step-by-step, dropping or widening one filter
 per iteration until either:
 

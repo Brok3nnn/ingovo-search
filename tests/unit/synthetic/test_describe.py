@@ -1,54 +1,37 @@
-"""Unit tests for §17.2.3 HU description generator.
+"""Unit tests for the synthetic listings' description generator.
 
-LLM contact is replaced with a deterministic in-memory client so the tier
-dispatcher, tier-probability sampling, null-field injection, and bad-case
-mutation are validated without external services. The HU prompt strings stay
-[PLACEHOLDER] until founder review — these tests assert the wiring + the
-documented distributions.
+Every tier is a local template, so the tier dispatcher, the tier-probability
+sampling, the null-field injection and the bad-case mutation are checked without
+any model or network.
 """
 
 from __future__ import annotations
 
 import random
 from collections import Counter
-from typing import cast
 
 import pytest
 from eval.synthetic.describe import (
     BAD_CASE_FRACTION,
-    DESCRIBE_PROMPT_VERSION,
+    BUILD_TYPE_LABELS,
     NULL_FIELD_FRACTION,
     NULLABLE_STRUCTURED_FIELDS,
     TIER_PROBABILITIES,
     DescriptionRecord,
     DescriptionTier,
     ListingSeed,
+    build_type_label,
     choose_tier,
     generate_dataset,
     generate_description,
+    generate_great_description,
     generate_skeletal_description,
     generate_templated_description,
     inject_bad_case,
     null_one_field,
 )
 
-from ingovo_search.lib.llm import LlmClient, LlmRequest
-
 SEED = 4242
-
-
-# ---------------------------------------------------------------------------
-# Fake LLM client
-# ---------------------------------------------------------------------------
-
-
-class _RecordingLlmClient:
-    def __init__(self) -> None:
-        self.requests: list[LlmRequest] = []
-
-    async def complete(self, req: LlmRequest) -> str:
-        self.requests.append(req)
-        return f"GREAT_HU::{req.user[-30:]}"
 
 
 def _seed(**overrides: object) -> ListingSeed:
@@ -69,13 +52,8 @@ def _seed(**overrides: object) -> ListingSeed:
 # ---------------------------------------------------------------------------
 
 
-def test_prompt_version_is_skeleton_until_founder_review() -> None:
-    """Pin the version so cache layers know when to invalidate."""
-    assert DESCRIBE_PROMPT_VERSION == "describe/v0-skeleton"
-
-
 def test_tier_probabilities_match_spec() -> None:
-    """§17.2.3 documented split: 33 / 34 / 33."""
+    """The documented split: 33 / 34 / 33."""
     assert TIER_PROBABILITIES == {"great": 0.33, "templated": 0.34, "skeletal": 0.33}
     assert sum(TIER_PROBABILITIES.values()) == pytest.approx(1.0)  # pyright: ignore[reportUnknownMemberType]
 
@@ -93,7 +71,7 @@ def test_noise_fractions_match_spec() -> None:
 def test_skeletal_description_is_short_and_carries_core_fields() -> None:
     seed = _seed()
     text = generate_skeletal_description(seed)
-    assert len(text.split()) <= 50  # under 50 words per §17.2.3
+    assert len(text.split()) <= 50  # the skeletal tier stays under 50 words
     assert "Budapest" in text
     assert "60" in text
     assert "kerület" in text
@@ -150,26 +128,32 @@ def test_choose_tier_matches_spec_distribution_in_aggregate() -> None:
 # ---------------------------------------------------------------------------
 
 
-async def test_generate_description_great_tier_calls_llm() -> None:
-    client = _RecordingLlmClient()
+def test_generate_description_dispatches_each_tier_to_its_template() -> None:
     seed = _seed()
-    out = await generate_description(seed, tier="great", client=cast(LlmClient, client))
-    assert out.startswith("GREAT_HU::")
-    assert len(client.requests) == 1
+    assert generate_description(seed, tier="great") == generate_great_description(seed)
+    assert generate_description(seed, tier="templated", rng=random.Random(SEED)) == generate_templated_description(
+        seed, rng=random.Random(SEED)
+    )
+    assert generate_description(seed, tier="skeletal") == generate_skeletal_description(seed)
 
 
-async def test_generate_description_templated_tier_does_not_call_llm() -> None:
-    client = _RecordingLlmClient()
-    out = await generate_description(_seed(), tier="templated", client=cast(LlmClient, client), rng=random.Random(SEED))
-    assert "Budapest" in out
-    assert client.requests == []
+def test_great_description_reads_the_structured_fields() -> None:
+    text = generate_great_description(_seed(property_type="csaladi_haz", rooms=4, area_m2=123.0, district="21"))
+    assert text.startswith("A 4 szobás, nagyjából 123 négyzetméteres családi ház Budapest 21. kerületében")
+    assert "A leírás alapján" in text
+    assert text.endswith("élhető otthont keres.")
 
 
-async def test_generate_description_skeletal_tier_does_not_call_llm() -> None:
-    client = _RecordingLlmClient()
-    out = await generate_description(_seed(), tier="skeletal", client=cast(LlmClient, client))
-    assert "Budapest" in out
-    assert client.requests == []
+def test_great_description_without_rooms_area_or_district() -> None:
+    text = generate_great_description(_seed(city="Pécs", district=None, rooms=None, area_m2=None))
+    assert text.startswith("Az átgondolt elrendezésű panel Pécs városában")
+
+
+def test_build_type_labels_are_hungarian() -> None:
+    assert build_type_label("csaladi_haz") == "családi ház"
+    assert build_type_label("tegla") == "tégla"
+    assert build_type_label("unknown_type") == "unknown type"
+    assert set(BUILD_TYPE_LABELS) == {"panel", "tegla", "csaladi_haz", "sorhaz", "uj_epitesu"}
 
 
 # ---------------------------------------------------------------------------
@@ -225,33 +209,38 @@ def test_inject_bad_case_returns_modified_record() -> None:
 # ---------------------------------------------------------------------------
 
 
-async def test_generate_dataset_produces_one_record_per_seed() -> None:
+def test_generate_dataset_produces_one_record_per_seed() -> None:
     seeds = [_seed(price_huf=p) for p in range(50_000_000, 60_000_000, 100_000)]  # 100 seeds
-    records = await generate_dataset(seeds, client=cast(LlmClient, _RecordingLlmClient()), rng=random.Random(SEED))
+    records = generate_dataset(seeds, rng=random.Random(SEED))
     assert len(records) == len(seeds)
     assert all(isinstance(r, DescriptionRecord) for r in records)
 
 
-async def test_generate_dataset_applies_bad_case_at_documented_fraction() -> None:
+def test_generate_dataset_is_reproducible_with_a_seeded_rng() -> None:
+    seeds = [_seed(price_huf=50_000_000 + i) for i in range(50)]
+    assert generate_dataset(seeds, rng=random.Random(SEED)) == generate_dataset(seeds, rng=random.Random(SEED))
+
+
+def test_generate_dataset_applies_bad_case_at_documented_fraction() -> None:
     n = 500
     seeds = [_seed(price_huf=50_000_000 + i) for i in range(n)]
-    records = await generate_dataset(seeds, client=cast(LlmClient, _RecordingLlmClient()), rng=random.Random(SEED))
+    records = generate_dataset(seeds, rng=random.Random(SEED))
     bad = sum(1 for r in records if r.bad_case)
     assert bad == round(n * BAD_CASE_FRACTION)
 
 
-async def test_generate_dataset_applies_null_at_documented_fraction() -> None:
+def test_generate_dataset_applies_null_at_documented_fraction() -> None:
     n = 500
     seeds = [_seed(price_huf=50_000_000 + i) for i in range(n)]
-    records = await generate_dataset(seeds, client=cast(LlmClient, _RecordingLlmClient()), rng=random.Random(SEED))
+    records = generate_dataset(seeds, rng=random.Random(SEED))
     nulled = sum(1 for r in records if r.nulled_field is not None)
     assert nulled == round(n * NULL_FIELD_FRACTION)
 
 
-async def test_generate_dataset_tier_distribution_within_tolerance() -> None:
+def test_generate_dataset_tier_distribution_within_tolerance() -> None:
     n = 2_000
     seeds = [_seed(price_huf=50_000_000 + i) for i in range(n)]
-    records = await generate_dataset(seeds, client=cast(LlmClient, _RecordingLlmClient()), rng=random.Random(SEED))
+    records = generate_dataset(seeds, rng=random.Random(SEED))
     counts: Counter[DescriptionTier] = Counter(r.tier for r in records)
     for tier, target in TIER_PROBABILITIES.items():
         observed = counts[tier] / n

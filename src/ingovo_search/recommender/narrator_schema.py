@@ -1,4 +1,4 @@
-"""The §17.3 narrative contract.
+"""The narrative contract.
 
 `AINarrative` is the JSON object the narrator model must return and the search
 envelope carries per result: a headline, a body, an honest compromise, the four

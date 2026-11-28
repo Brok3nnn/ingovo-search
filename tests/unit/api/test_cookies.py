@@ -1,5 +1,5 @@
 # pyright: reportUnusedFunction=false
-"""Unit tests for §14 step-3 session-cookie read + write helpers."""
+"""Unit tests for the session-cookie read + write helpers."""
 
 from __future__ import annotations
 
@@ -86,7 +86,7 @@ def test_set_session_cookie_stamps_signed_value() -> None:
     response = TestClient(_app_setting_cookie("session-123")).get("/login")
     cookie = response.cookies.get(SESSION_COOKIE_NAME)
     assert cookie is not None
-    # The cookie value is the signed form; verify via the §14c helper.
+    # The cookie value is the signed form; verify via the helper.
     assert verify_signed_session_id(cookie, secret=SECRET) == "session-123"
 
 

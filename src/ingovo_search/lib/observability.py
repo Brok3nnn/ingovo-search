@@ -27,7 +27,6 @@ from ingovo_search.db.models import SearchLog
 EVENT_SEARCH_RUN = "search_run"
 EVENT_REFINEMENT_CHIP_REMOVE = "refinement_chip_remove"
 EVENT_REFINEMENT_DISAMBIGUATE = "refinement_disambiguate"
-EVENT_REFINEMENT_TRADEOFF = "refinement_tradeoff"
 EVENT_CLARIFICATION_SHOWN = "clarification_shown"
 EVENT_CLARIFICATION_ANSWERED = "clarification_answered"
 EVENT_CLARIFICATION_SKIPPED = "clarification_skipped"
@@ -37,7 +36,6 @@ TRACKED_EVENTS: frozenset[str] = frozenset(
         EVENT_SEARCH_RUN,
         EVENT_REFINEMENT_CHIP_REMOVE,
         EVENT_REFINEMENT_DISAMBIGUATE,
-        EVENT_REFINEMENT_TRADEOFF,
         EVENT_CLARIFICATION_SHOWN,
         EVENT_CLARIFICATION_ANSWERED,
         EVENT_CLARIFICATION_SKIPPED,

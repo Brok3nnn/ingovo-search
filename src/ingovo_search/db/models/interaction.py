@@ -1,7 +1,7 @@
 """Interaction — buyer signal captured with query context.
 
-The **query** (not the user) is the pooling key for the recommender. See
-the design spec (§6.6, §9) for the kNN aggregation.
+The **query** (not the user) is the pooling key for the recommender; the kNN
+aggregation lives in `recommender/pooled_signal.py`.
 """
 
 from __future__ import annotations

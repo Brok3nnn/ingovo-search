@@ -1,11 +1,11 @@
-"""§17.2.6 weight-calibration grid search.
+"""Weight-calibration grid search.
 
 Pure-function calibrator: given a `(query_id, ground_truth_ratings)` eval set
 and a callable `score_fn(query_id, weights) -> ranked_listing_ids`, sweep a
 weight grid and return the `(weights, avg_ndcg)` log sorted by NDCG desc.
 
-The spec asks for grid search over the §6.4 `w_*` weights against
-`SyntheticEvalRating` ratings. The DB loader + the §8 `compute_score` plug
+The calibration is a grid search over the `w_*` weights against
+`SyntheticEvalRating` ratings. The DB loader + the `compute_score` plug
 live behind v1 wiring — this module ships the pure search loop so the math
 is locked behind a test suite before the heavier pipeline lands.
 
@@ -18,12 +18,12 @@ Usage (pure):
     grid = [{"content": 0.20}, {"content": 0.25}, ...]
 
     def my_score_fn(qid, weights):
-        return run_§8_recommend(qid, weights)  # -> ["L1", "L2", ...]
+        return run_recommend(qid, weights)  # -> ["L1", "L2", ...]
 
     results = calibrate(eval_set, my_score_fn, grid, k=10)
     # results[0] is the best (weights, avg_ndcg)
 
-CLI is a stub — the SyntheticEvalRating loader + the §8 recommend plug are
+CLI is a stub — the SyntheticEvalRating loader + the recommend plug are
 v1 work, and the printed pointer makes that explicit.
 """
 
@@ -120,7 +120,7 @@ def calibrate(
 ) -> list[CalibrationResult]:
     """Sweep `weight_grid`, return `(weights, avg_ndcg, per_query_ndcg)` sorted by NDCG desc.
 
-    `score_fn` is the integration point: the caller plugs in the §8 `recommend`
+    `score_fn` is the integration point: the caller plugs in the `recommend`
     path (or a stub during calibration of pure-math invariants). Each grid
     point gets one call per query.
 
@@ -166,7 +166,7 @@ def main() -> None:
     print(
         "calibrate_weights.py holds the pure grid-search math (calibrate / expand_grid /\n"
         "score_query). The DB-backed CLI that loads SyntheticEvalRating rows and plugs\n"
-        "the §8 `recommend` path is `eval/run_calibration.py` — run that instead:\n\n"
+        "the `recommend` path is `eval/run_calibration.py` — run that instead:\n\n"
         "    uv run python eval/run_calibration.py\n\n"
         "Pure math is exercised by tests/unit/eval_runner/test_calibrate_weights.py.",
         file=sys.stderr,

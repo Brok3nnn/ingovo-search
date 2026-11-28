@@ -1,6 +1,6 @@
-"""§10 geo scoring — pure soft-scoring math for fuzzy geographic terms.
+"""Geo scoring — pure soft-scoring math for fuzzy geographic terms.
 
-`geo_score` blends three components per the design spec §10 step 1:
+`geo_score` blends three components:
 proximity to an explicit POI anchor, a learned/cold-start named-region match,
 and which side of the Danube the listing sits on. The named-region component
 is DB- and LLM-backed (`region_centroid.matches_named_region`); it is computed
@@ -33,7 +33,7 @@ EARTH_RADIUS_KM = 6371.0088
 # Hard-coded, not learned — administrative fact, not engagement signal.
 BUDA_DISTRICTS: frozenset[str] = frozenset({"1", "2", "3", "11", "12", "22"})
 
-# §10 step 1 component weights. Proximity and named-region remain the strongest
+# Component weights. Proximity and named-region remain the strongest
 # cues; administrative-boundary cues (river side, county, Balaton shore) are
 # precise but coarse, so they each contribute a moderate, comparable weight.
 ALPHA_PROXIMITY = 0.5
@@ -46,13 +46,13 @@ ZETA_BALATON_AREA = 0.55
 # it weighs close to the explicit near-anchor cue.
 ETA_POI_NEAR = 0.45
 
-# poi_near scoring constants. Distances come from the §12 nightly job's
+# poi_near scoring constants. Distances come from the nightly job's
 # `features["poi_m"]` map (metres to the nearest POI per category, 2 km cap).
 DEFAULT_POI_TARGET_M = 500.0
 WALK_METRES_PER_MINUTE = 80.0
 WALK_DETOUR_FACTOR = 1.3  # straight-line target = walked metres / detour
 # Missing POI data contributes neutrally — derived data must never exclude or
-# crater a listing (§8 missing-data policy).
+# crater a listing (missing-data policy).
 NEUTRAL_POI_SCORE = 0.5
 TRANSIT_MODES: tuple[str, ...] = ("metro", "tram", "bus")
 

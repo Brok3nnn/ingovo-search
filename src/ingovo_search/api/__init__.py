@@ -1,1 +1,1 @@
-"""FastAPI routers. Concrete routes land in §14."""
+"""FastAPI app, routers and middleware."""

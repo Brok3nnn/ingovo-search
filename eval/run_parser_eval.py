@@ -105,7 +105,7 @@ def _load_eval_records(file_path: str) -> list[dict[str, Any]]:
     return records
 
 
-# §17.1 category semantics. Records carry an optional "category" field; sets
+# Category semantics. Records carry an optional "category" field; sets
 # without categories keep the original global-recall gate for back-compat.
 DEFAULT_CATEGORY = "uncategorized"
 HARD_CONSTRAINT_CATEGORY = "hard_constraint"
@@ -160,7 +160,7 @@ def _is_set(value: Any) -> bool:
 def find_hallucinated_keys(expected: dict[str, Any], parsed: dict[str, Any]) -> list[tuple[str, Any]]:
     """`(key_path, parsed_value)` pairs the parser set in hard_filters/anchors unexpectedly.
 
-    Used for the §17.1 adversarial gate: adversarial queries bait the parser
+    Used for the adversarial gate: adversarial queries bait the parser
     into inventing constraints, so any set-but-unexpected key fails the gate.
     Reported (but not gated) for every other category. Keys in
     `_DERIVED_OR_DEFAULTED_KEYS` are exempt. Parsed values are included so
@@ -193,7 +193,7 @@ def gate_verdict(
     gated_coverage: float = 1.0,
     min_gated_coverage: float = MIN_GATED_COVERAGE,
 ) -> tuple[bool, list[str]]:
-    """§17.1 step 4 gate: hard-constraint recall < threshold OR any adversarial hallucination.
+    """Gate: hard-constraint recall < threshold OR any adversarial hallucination.
 
     Falls back to gating on global recall when the eval set has no
     `hard_constraint` category (pre-category sets). `gated_coverage` is the
@@ -267,12 +267,12 @@ async def run_eval(file_path: str) -> None:
                 stats[3] += len(hallucinated)
                 if category == ADVERSARIAL_CATEGORY:
                     adversarial_hallucinations += len(hallucinated)
-                print(f"  ⚠️ Hallucinated keys: {hallucinated}")
+                print(f"  WARNING: hallucinated keys: {hallucinated}")
 
             if missing:
-                print(f"  ❌ Missing/Mismatched: {missing}")
+                print(f"  FAIL: missing or mismatched: {missing}")
             else:
-                print("  ✅ Pass")
+                print("  pass")
 
         except Exception as e:
             if is_quota_error(e):
@@ -288,7 +288,7 @@ async def run_eval(file_path: str) -> None:
                     )
                 continue
             consecutive_quota_errors = 0
-            print(f"  ❌ Error parsing query: {e}")
+            print(f"  ERROR parsing the query: {e}")
             total_expected += len(expected)  # roughly
             total_evaluated += 1
             stats[1] += len(expected)
@@ -322,10 +322,10 @@ async def run_eval(file_path: str) -> None:
 
     passed, reasons = gate_verdict(recall, category_recalls, adversarial_hallucinations, gated_coverage=gated_coverage)
     if passed:
-        print("\n✅ PASSED: recall gate met and no adversarial hallucinations.")
+        print("\nPASSED: recall gate met and no adversarial hallucinations.")
     else:
         for reason in reasons:
-            print(f"\n❌ FAILED: {reason}")
+            print(f"\nFAILED: {reason}")
         sys.exit(1)
 
 

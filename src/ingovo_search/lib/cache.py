@@ -1,4 +1,4 @@
-"""§13 shared caching layer.
+"""Shared caching layer.
 
 Single `Cache` Protocol with two implementations:
 
@@ -6,13 +6,9 @@ Single `Cache` Protocol with two implementations:
 - `RedisCache` — wraps an Upstash-compatible `redis.asyncio.Redis` client
   for production time-windowed caches (parser, search, rerank).
 
-Persistent caches (enrichment, embeddings, geocoding) live in dedicated
-Postgres tables — `enrichment_cache`, `embedding_cache`, `geocode_cache` —
-since they are durable and cheap. See `lib/enrichment_cache.py`,
-`lib/embedding_cache.py`, `lib/geocode_cache.py`. The §13 key-prefix helpers
-below give downstream callers a single source of truth for the six cache
-classes named in the design spec §13 step 3, regardless of which backend
-ultimately stores each one.
+The listing-embedding cache has its own backends (`lib/embedding_cache.py`). The
+key-prefix helpers below give callers a single source of truth for every cache
+key, regardless of which backend stores the entry.
 """
 
 from __future__ import annotations
@@ -148,10 +144,8 @@ async def set_json(
 
 # --- Cache-key builders ----------------------------------------------------
 #
-# the design spec §13 step 3 names six cache classes. Each helper returns a
-# fully-qualified key string so callers never assemble prefixes by hand. The
-# parser / search / rerank helpers feed `MemoryCache` / `RedisCache`; the
-# enrichment / embedding / geocode helpers feed the dedicated Postgres tables.
+# Each helper returns a fully-qualified key string so callers never assemble
+# prefixes by hand.
 
 
 def _sha256(value: str) -> str:
@@ -166,18 +160,13 @@ def normalise_query(text: str) -> str:
     return _WHITESPACE_RE.sub(" ", text.strip()).casefold()
 
 
-def normalise_address(address: str) -> str:
-    """Lowercased, whitespace-collapsed address. Matches `lib.geocode_cache`."""
-    return _WHITESPACE_RE.sub(" ", address.strip()).lower()
-
-
 def parser_cache_key(prompt_version: str, query: str) -> str:
-    """`parse:v{PROMPT_VERSION}:{sha256(normalised_query)}` — 10-min TTL in §7."""
+    """`parse:v{PROMPT_VERSION}:{sha256(normalised_query)}` — 10-min TTL."""
     return f"parse:v{prompt_version}:{_sha256(normalise_query(query))}"
 
 
 def search_cache_key(parsed_query_hash: str, *, user_signed_in: bool) -> str:
-    """`search:{parsed_query_hash}:{0|1}` — 10-min TTL in §14."""
+    """`search:{parsed_query_hash}:{0|1}` — 10-min TTL."""
     flag = "1" if user_signed_in else "0"
     return f"search:{parsed_query_hash}:{flag}"
 
@@ -197,7 +186,7 @@ def raw_search_response_cache_key(query: str, *, user_signed_in: bool, response_
 
 
 def rerank_cache_key(query_hash: str, top_ids: Sequence[str]) -> str:
-    """`rerank:{query_hash}:{sha256(sorted_ids)}` — 10-min TTL in §11.
+    """`rerank:{query_hash}:{sha256(sorted_ids)}` — 10-min TTL.
 
     Candidate ids are sorted before hashing so the key is stable under
     permutations of the top-N input order.
@@ -207,7 +196,7 @@ def rerank_cache_key(query_hash: str, top_ids: Sequence[str]) -> str:
 
 
 def enrichment_cache_key(description: str, prompt_version: str) -> str:
-    """`enrich:v{PROMPT_VERSION}:{sha256(description)}` — persistent in §4.
+    """`enrich:v{PROMPT_VERSION}:{sha256(description)}` — persistent.
 
     `prompt_version` is folded in so a prompt rewrite invalidates the cache
     without touching the underlying table.
@@ -216,18 +205,13 @@ def enrichment_cache_key(description: str, prompt_version: str) -> str:
 
 
 def embedding_cache_key(content: str, *, model: str, input_type: str) -> str:
-    """`embed:{model}:{input_type}:{sha256(content)}` — persistent in §5.
+    """`embed:{model}:{input_type}:{sha256(content)}` — persistent.
 
     Mirrors `lib.embedding_cache.cache_key_for` so both layers agree on the
-    canonical key. The §13 prefix `embed:` lets a future caller distinguish
+    canonical key. The prefix `embed:` lets a future caller distinguish
     it from other namespaces if Redis is ever used for embeddings.
     """
     return f"embed:{model}:{input_type}:{_sha256(content)}"
-
-
-def geocode_cache_key(address: str) -> str:
-    """`geocode:{normalised_address}` — persistent in §3."""
-    return f"geocode:{normalise_address(address)}"
 
 
 __all__ = [
@@ -236,9 +220,7 @@ __all__ = [
     "RedisCache",
     "embedding_cache_key",
     "enrichment_cache_key",
-    "geocode_cache_key",
     "get_json",
-    "normalise_address",
     "normalise_query",
     "parser_cache_key",
     "raw_search_response_cache_key",

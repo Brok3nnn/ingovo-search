@@ -1,4 +1,4 @@
-"""R5 canonical ranking and invariant guard tests."""
+"""Canonical ranking and the ordering-invariant guard."""
 
 from __future__ import annotations
 
@@ -55,11 +55,18 @@ def _candidate(listing_id: str, match_percent: int, signals: _Signals = _DEFAULT
     )
 
 
-def test_75_then_84_becomes_84_then_75() -> None:
+def test_a_higher_score_ranked_below_a_lower_one_shows_the_lower_one() -> None:
     ranked = canonical_rank([_candidate("a", 75), _candidate("b", 84)])
     assert [item.listing_id for item in ranked] == ["a", "b"]
-    assert [item.match_percent for item in ranked] == [84, 75]
+    assert [item.match_percent for item in ranked] == [75, 75]
     assert [item.rank for item in ranked] == [1, 2]
+
+
+def test_no_listing_is_shown_above_its_own_percentage() -> None:
+    own = [62, 90, 71, 71, 40, 88]
+    ranked = canonical_rank([_candidate(f"l{index}", percent) for index, percent in enumerate(own)])
+    assert [item.match_percent for item in ranked] == [62, 62, 62, 62, 40, 40]
+    assert all(item.match_percent <= percent for item, percent in zip(ranked, own, strict=True))
 
 
 def test_ties_preserve_authoritative_input_order() -> None:
@@ -106,7 +113,7 @@ def test_assert_match_order_rejects_rank_gap() -> None:
 
 
 def test_order_invariant_violation_emits_alert_log() -> None:
-    # R11.6 — a monitoring rule alerts on event="alert.order_invariant_violation".
+    # A monitoring rule alerts on event="alert.order_invariant_violation".
     # Patch the module logger directly so the assertion is independent of
     # structlog's global config / first-use caching in the full suite.
     invalid = [

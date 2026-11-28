@@ -1,4 +1,4 @@
-"""§14e-3 — pipeline wiring tests for `POST /api/search`.
+"""Pipeline wiring tests for `POST /api/search`.
 
 The acceptance tests in `test_search.py` stub the entire pipeline and only
 check envelope shape + cookie + session accumulation. These tests verify the
@@ -26,6 +26,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from tests._fakes import fake_db_session
 
 from ingovo_search.api.cookies import SESSION_COOKIE_NAME
 from ingovo_search.api.deps import (
@@ -62,14 +63,9 @@ from ingovo_search.search.scoring import (
     public_property_features,
     should_rerank,
 )
+from ingovo_search.types.errors import LlmError
 
 SECRET = b"x" * 32
-
-
-# FastAPI resolves an override's own signature, and AsyncMock's `*args, **kwargs` would become required
-# query parameters, so the override is a parameterless factory (a fresh mock per request).
-def _fresh_async_mock() -> AsyncMock:
-    return AsyncMock()
 
 
 def test_administrative_geo_scope_excludes_out_of_area_settlements() -> None:
@@ -194,7 +190,7 @@ def app(
     application.dependency_overrides[get_session_cookie_secure] = lambda: False
     application.dependency_overrides[get_llm_client] = lambda: llm_client
     application.dependency_overrides[get_embedding_client] = lambda: embedding_client
-    application.dependency_overrides[get_db_session] = _fresh_async_mock
+    application.dependency_overrides[get_db_session] = fake_db_session
     return application
 
 
@@ -242,7 +238,7 @@ def patched_pipeline(
             new_callable=AsyncMock,
             return_value=True,
         ) as mock_visibility,
-        # Conditional rerank (§4) is exercised by its own dedicated tests; here we
+        # Conditional rerank is exercised by its own dedicated tests; here we
         # keep every semantic search rerank-eligible so the pipeline-flow tests
         # always reach the rerank step regardless of fixture size.
         patch("ingovo_search.search.reranking.should_rerank", return_value=True),
@@ -343,6 +339,41 @@ def test_parser_timeout_uses_deterministic_fallback(client: TestClient) -> None:
     assert body["data"]["results"][0]["property"]["city"] == "Győr"
 
 
+def test_parser_outage_uses_deterministic_fallback(client: TestClient) -> None:
+    """A model failure that is not a timeout degrades to the rule-based reading too."""
+    props = [
+        (_make_property("L1", city="Győr", price_huf=42_000_000), _make_breakdown(0.9)),
+        (_make_property("L2", city="Győr", price_huf=44_000_000), _make_breakdown(0.8)),
+    ]
+
+    with (
+        patched_pipeline(
+            parsed=ParsedQuery(semantic_query="unused"),
+            recommend_return=props,
+            rerank_return=None,
+        ) as mocks,
+        patch("ingovo_search.search.request.get_settings") as mock_settings,
+    ):
+        mock_settings.return_value.llm_daily_budget_usd = 25.0
+        mock_settings.return_value.ai_search_rerank_rank_only = True
+        mock_settings.return_value.ai_search_conditional_rerank = True
+        mock_settings.return_value.ai_search_parser_timeout_ms = 500
+        mock_settings.return_value.ai_search_rerank_timeout_ms = 700
+        mocks.parse.side_effect = LlmError("every model failed for gemini-2.5-flash-lite: ServerError")
+        response = client.post(
+            "/api/search",
+            json={"query": "eladó lakás Győrben 45 millió alatt", "include_rerank": False},
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["meta"]["timings_ms"]["parser_error"] == 1
+    assert body["meta"]["timings_ms"]["parser_timeout"] == 0
+    parsed_for_search = mocks.recommend.await_args_list[0].args[1]
+    assert parsed_for_search.hard_filters.city == "Győr"
+    assert parsed_for_search.hard_filters.price_huf_max == 45_000_000
+
+
 def test_rank_only_setting_is_passed_to_rerank(client: TestClient) -> None:
     parsed = ParsedQuery(semantic_query="csendes napos lakás budán")
     props = [(_make_property(f"L{i}"), _make_breakdown(1.0 - i * 0.01)) for i in range(4)]
@@ -419,7 +450,7 @@ def test_response_carries_rerank_rationale(client: TestClient) -> None:
 
 
 def test_rerank_skipped_when_semantic_query_empty(client: TestClient) -> None:
-    """§6.4 filter-only fast path: empty semantic_query → no LLM rerank."""
+    """Filter-only fast path: empty semantic_query → no LLM rerank."""
     parsed = ParsedQuery(semantic_query="")
     props = [(_make_property("L1"), _make_breakdown(0.9))]
 
@@ -860,7 +891,7 @@ def test_partial_rerank_preserves_every_pipeline_candidate(
 
 
 def test_cache_miss_writes_response(client: TestClient, session_cache: Cache) -> None:
-    """First call populates the §13 search cache under the parsed-query hash."""
+    """First call populates the search cache under the parsed-query hash."""
     parsed = ParsedQuery(semantic_query="kétszobás panel")
     props = [(_make_property("L1"), _make_breakdown(0.9))]
     rerank = _make_rerank_result(["L1"])
@@ -1027,7 +1058,7 @@ def test_refinement_overrides_applied_after_session_clarifications(client: TestC
 
     assert response.status_code == 200
     # recommend was called with the refinement-merged parsed query on the FIRST
-    # invocation. (M3 relaxation may re-call recommend with widened filters
+    # invocation. (relaxation may re-call recommend with widened filters
     # when the first call returns []; those secondary calls would intentionally
     # have an empty district_in, so we pin the assertion to the initial call.)
     assert mocks.recommend.await_args_list, "recommend was never called"
@@ -1035,7 +1066,7 @@ def test_refinement_overrides_applied_after_session_clarifications(client: TestC
     assert parsed_arg.hard_filters.district_in == ["13"]
 
 
-# --- /api/search/clarify (§14e-4) ----------------------------------------
+# --- /api/search/clarify ----------------------------------------
 
 
 def test_clarify_returns_400_when_no_prior_search(client: TestClient) -> None:
@@ -1135,7 +1166,7 @@ def test_clarify_keeps_session_cookie_continuous(client: TestClient) -> None:
 
 
 def test_search_observability_log_carries_scope_and_location() -> None:
-    """R11.1-R11.5 — one structured line with location, scope counts, nearby distances.
+    """One structured line with location, scope counts, nearby distances.
 
     Asserts against the module logger directly (not structlog's global capture),
     because the heavily-used `_search_logger` proxy may already be cached by the
@@ -1191,7 +1222,7 @@ def test_search_observability_log_carries_scope_and_location() -> None:
 
 
 def test_remote_settlement_inclusion_emits_alert_and_raises() -> None:
-    """R11.7 — an out-of-scope settlement reaching public scoring alerts + raises."""
+    """An out-of-scope settlement reaching public scoring alerts + raises."""
     parsed = ParsedQuery(hard_filters=HardFilters(city="Tiszafüred", city_id="ksh:29726"))
     far = _make_property("FAR", city="Győr", district=None)
     scored = [(far, _make_breakdown(0.5))]

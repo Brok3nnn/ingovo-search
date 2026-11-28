@@ -3,7 +3,7 @@
 Builds the FastAPI search app with the same dependency overrides the unit tests use and
 patches the pipeline's four call sites (parser, recommender, clarification, rerank) with
 deterministic doubles, so ``POST /api/search`` exercises the orchestration of
-``_run_search_pipeline`` — the 735-line function P5.3 splits — on a fixed, LLM-free path.
+``execute_search_request`` and ``run_search_pipeline`` on a fixed, LLM-free path.
 """
 
 from __future__ import annotations
@@ -16,6 +16,7 @@ from unittest.mock import AsyncMock, patch
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from tests._fakes import fake_db_session
 
 from ingovo_search.api.deps import (
     get_db_session,
@@ -54,7 +55,7 @@ def build_client() -> TestClient:
     # FastAPI reads the override's signature; a bare `AsyncMock` class would become query params.
     application.dependency_overrides[get_llm_client] = lambda: AsyncMock()  # noqa: PLW0108
     application.dependency_overrides[get_embedding_client] = lambda: embedding_client
-    application.dependency_overrides[get_db_session] = lambda: AsyncMock()  # noqa: PLW0108
+    application.dependency_overrides[get_db_session] = fake_db_session
     return TestClient(application)
 
 

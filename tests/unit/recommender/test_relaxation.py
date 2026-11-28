@@ -1,4 +1,4 @@
-"""Unit tests for M3 hard-filter relaxation."""
+"""Unit tests for hard-filter relaxation."""
 
 from __future__ import annotations
 

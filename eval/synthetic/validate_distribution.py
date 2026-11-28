@@ -1,18 +1,18 @@
-"""§17.2.4 distribution validator.
+"""Distribution validator.
 
 Reads `synthetic_listings.json` and verifies the realised distribution lands
 inside the documented tolerances:
 
 - 1 500-2 000 total rows.
-- Tier split within ±3pp of §17.2.3 `TIER_PROBABILITIES`.
+- Tier split within ±3pp of `TIER_PROBABILITIES`.
 - Null-field fraction within ±2pp of `NULL_FIELD_FRACTION`.
 - Bad-case fraction within ±2pp of `BAD_CASE_FRACTION`.
 - City coverage: every city seen in `extract_osm`'s target tables is
-  represented at least once (so the §7.4 geographic spread holds even after
+  represented at least once (so the geographic spread holds even after
   resampling).
 
 Returns a structured `ValidationReport` whose `ok` flag drives the CLI exit
-code. Used by the §17.2.4 acceptance gate and by `eval/run_parser_eval.py`'s
+code. Used by the acceptance gate and by `eval/run_parser_eval.py`'s
 sister scripts when they need to spot-check dataset health.
 """
 
@@ -134,7 +134,7 @@ def main(argv: list[str] | None = None) -> int:
     report = validate(load_listings(path))
     print(report.summary())
     for issue in report.issues:
-        print(f"  ✗ {issue}", file=sys.stderr)
+        print(f"  - {issue}", file=sys.stderr)
     return 0 if report.ok else 1
 
 

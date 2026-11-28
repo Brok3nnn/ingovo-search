@@ -1,4 +1,4 @@
-"""§17.2.2 KSH price-distribution sampler.
+"""KSH price-distribution sampler.
 
 Hard-coded price-per-m² distributions per district / city, drawn from public
 KSH (Hungarian Statistical Office) stats and broker surveys for 2024-2025.

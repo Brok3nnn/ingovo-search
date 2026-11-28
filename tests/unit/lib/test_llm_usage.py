@@ -34,6 +34,7 @@ from ingovo_search.lib.llm_usage import (
 from ingovo_search.recommender.image_query import analyze_images
 from ingovo_search.recommender.parser import parse_query
 from ingovo_search.recommender.parser_schema import ParsedQuery
+from ingovo_search.types.errors import LlmError
 
 
 def _close(actual: float, expected: float) -> bool:
@@ -224,7 +225,7 @@ async def test_a_failed_call_leaves_no_usage_behind(monkeypatch: pytest.MonkeyPa
         usage=_Usage(prompt=1),
     )
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(LlmError):
         await GoogleAiClient(api_key="k").complete(LlmRequest(model="gemini-2.5-flash-lite", system="s", user="u"))
 
     assert last_llm_usage() is None

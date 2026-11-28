@@ -3,13 +3,13 @@
 Where ``/api/search/preview`` only *interprets* the sentence, the probe *touches
 the real index*. For the current :class:`ParsedQuery` it:
 
-1. counts the listings that satisfy the strict §8 hard filter (``exact_count``);
+1. counts the listings that satisfy the strict hard filter (``exact_count``);
 2. summarises the market price band for the same segment **with the price
    constraint removed**, plus where the buyer's budget sits inside it
    (``price_stats`` + ``budget_percentile``) — the "is my budget tight or
    generous here" signal the cockpit needs;
 3. returns a few *real* preview listings, ranked by the **deterministic half**
-   of the §6.4 scorer;
+   of the scorer;
 4. offers grounded **directions** — each widening move annotated with the real
    counterfactual ``COUNT`` delta ("+58"), actionable via a ``RefinementOverrides``
    payload the frontend replays into ``/api/search``;
@@ -124,7 +124,7 @@ def _fmt_huf(value: int, locale: PreviewLocale) -> str:
 def score_and_rank[RowT](
     rows: Sequence[RowT], query: ParsedQuery, *, now: datetime
 ) -> list[tuple[RowT, ScoreBreakdown]]:
-    """Deterministic §6.4 ranking without embeddings/LLM. Pure and stable.
+    """Deterministic ranking without embeddings/LLM. Pure and stable.
 
     ``geo_score_value=0.0`` and ``explore=0.0`` keep the sample ordering stable
     and cheap: previews are ranked on anchor · quality · soft-pref · recency,
@@ -243,7 +243,7 @@ def _build_insight(
 
 
 async def _count(session: AsyncSession, where_sql: str, params: dict[str, object], array_params: list[str]) -> int:
-    stmt = bind_array_params(text(f"SELECT COUNT(*) AS n FROM properties WHERE {where_sql}"), array_params)  # noqa: S608 -- where_sql is the §8 clause list, built from constant fragments with every value bound
+    stmt = bind_array_params(text(f"SELECT COUNT(*) AS n FROM properties WHERE {where_sql}"), array_params)  # noqa: S608 -- where_sql is the clause list, built from constant fragments with every value bound
     try:
         result = await session.execute(stmt, params)
     except SQLAlchemyError as exc:
@@ -265,7 +265,7 @@ async def _price_stats(session: AsyncSession, market_hard: HardFilters, budget: 
         budget_select = f", COUNT(*) FILTER (WHERE ({price_sql}) <= :__budget) AS n_below"
         params = {**params, "__budget": budget}
     sql = (
-        f"SELECT COUNT({price_sql}) AS n, MIN({price_sql}) AS min_price, "  # noqa: S608 -- the constant price expression and the §8 where_sql (constant fragments, values bound)
+        f"SELECT COUNT({price_sql}) AS n, MIN({price_sql}) AS min_price, "  # noqa: S608 -- the constant price expression and the where_sql (constant fragments, values bound)
         f"percentile_disc(0.25) WITHIN GROUP (ORDER BY {price_sql}) AS p25, "
         f"percentile_disc(0.5) WITHIN GROUP (ORDER BY {price_sql}) AS median, "
         f"percentile_disc(0.75) WITHIN GROUP (ORDER BY {price_sql}) AS p75, "
@@ -301,7 +301,7 @@ async def _sample_ids(
 ) -> list[str]:
     stmt = bind_array_params(
         text(
-            f"SELECT id FROM properties WHERE {where_sql} "  # noqa: S608 -- where_sql is the §8 clause list, built from constant fragments with every value bound
+            f"SELECT id FROM properties WHERE {where_sql} "  # noqa: S608 -- where_sql is the clause list, built from constant fragments with every value bound
             "ORDER BY quality_score DESC NULLS LAST, id LIMIT :__sample_limit"
         ),
         array_params,

@@ -1,4 +1,4 @@
-"""R2 tests for the complete Hungarian settlement registry and resolver."""
+"""Tests for the complete Hungarian settlement registry and resolver."""
 
 from __future__ import annotations
 

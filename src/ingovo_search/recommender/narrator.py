@@ -1,4 +1,4 @@
-"""§17.3 AI narrator — natural-language explanation per result.
+"""AI narrator — natural-language explanation per result.
 
 Generates the "AI ingatlanügynök" ("AI estate agent") voice the search-results UX
 is built around. Each top-N candidate gets a small JSON
@@ -194,9 +194,9 @@ async def _attempt_narrative(
         narrative = _coerce_narrative(raw)
     except Exception as exc:
         # Fail-soft by contract (see `generate_narrative`): the hero card must render
-        # under any LLM failure — an LlmError, the raw provider or transport
-        # error `GoogleAiClient` re-raises once its fallback chain is spent, or
-        # the JSONDecodeError/ValidationError of a schema miss. Previously
+        # under any LLM failure — the LlmError `GoogleAiClient` raises once its
+        # fallback chain is spent, or the JSONDecodeError/ValidationError of a
+        # schema miss. Previously
         # `continue` with no logging, which made this the only LLM phase whose
         # failures were completely invisible: the parser and the rerank both
         # log every attempt. A Gemini outage, an auth error or a run of

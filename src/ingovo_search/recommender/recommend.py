@@ -1,4 +1,4 @@
-"""§8 `recommend` — the DB-backed orchestrator over `compute_score`.
+"""`recommend` — the DB-backed orchestrator over `compute_score`.
 
 SQL hard filter → vector pre-filter (when the pool exceeds 500) → per-candidate geo +
 pooled-signal lookups → score → sort top-N. Integration-tested only; the pure scoring
@@ -33,7 +33,7 @@ from ingovo_search.recommender.region_centroid import ResolvedRegionMatcher, res
 from ingovo_search.recommender.score import ScoreBreakdown, ScoreInputs, compute_score
 from ingovo_search.recommender.sql_filter import run_hard_filter
 
-# Cap on the candidate pool entering full scoring (§6.4 step 4).
+# Cap on the candidate pool entering full scoring.
 VECTOR_PREFILTER_LIMIT = 500
 TOP_N_DEFAULT = 30
 _logger = structlog.get_logger("ingovo_search.recommender.recommend")
@@ -199,7 +199,7 @@ async def _fetch_inputs(
 
 
 def _score_one(scoring: _Scoring, prop: SimpleNamespace) -> ScoreBreakdown:
-    """One candidate's §6.4 score, in memory; the timing counters accumulate on `scoring`."""
+    """One candidate's score, in memory; the timing counters accumulate on `scoring`."""
     inputs = scoring.inputs
     params = scoring.params
     prop_lat, prop_lng = inputs.coords.get(prop.id, (None, None))
@@ -267,14 +267,12 @@ def _log_recommend_timing(
 ) -> None:
     _logger.info(
         "recommend timing",
-        extra={
-            "timings_ms": timings_ms,
-            "hard_filter_count": pool.hard_filter_count,
-            "candidate_count": candidate_count,
-            "returned_count": returned_count,
-            "used_vector_prefilter": pool.used_vector_prefilter,
-            "region_name": region_name,
-        },
+        timings_ms=timings_ms,
+        hard_filter_count=pool.hard_filter_count,
+        candidate_count=candidate_count,
+        returned_count=returned_count,
+        used_vector_prefilter=pool.used_vector_prefilter,
+        region_name=region_name,
     )
 
 
@@ -294,11 +292,11 @@ async def recommend(  # noqa: PLR0913 -- the orchestrator's keyword surface is t
 
     Pipeline: SQL hard filter → vector pre-filter (top 500 by factual similarity
     when the SQL pool exceeds 500) → batched property/coord/pooled-signal fetches
-    (one query each) → region resolved once → full §6.4 score in memory → sort by
+    (one query each) → region resolved once → full score in memory → sort by
     total. There is no per-listing DB round-trip in the scoring loop.
 
-    `candidate_ids` lets a caller that already ran the §8 hard filter (e.g. the
-    M3 relaxation probe in the search pipeline) pass the matching ids in, skipping a
+    `candidate_ids` lets a caller that already ran the hard filter (e.g. the
+    relaxation probe in the search pipeline) pass the matching ids in, skipping a
     redundant hard-filter query. When omitted, the filter runs as usual.
     """
     total_started = time.perf_counter()
@@ -341,7 +339,7 @@ async def recommend(  # noqa: PLR0913 -- the orchestrator's keyword surface is t
     step_started = time.perf_counter()
     # Tiebreak on id: equal-scored listings must rank deterministically, or
     # result order shuffles between identical requests (unstable pagination,
-    # cache misses, and snapshot-test drift — seen live 2026-07-03 on queries
+    # cache misses, and snapshot-test drift — seen on 2026-07-03 on queries
     # whose candidates all tie).
     scored.sort(key=lambda pair: (-pair[1].total, str(pair[0].id)))
     timings_ms["sort"] = _elapsed_ms(step_started)

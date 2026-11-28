@@ -1,7 +1,7 @@
 """Offline rerank comparison — characterisation of the Markdown report and the gate checks.
 
 The expected texts and checks were captured from the single-module implementation
-before it was split (P5.5); the report and the gate verdicts must stay byte-identical.
+before it was split; the report and the gate verdicts must stay byte-identical.
 """
 
 from __future__ import annotations
@@ -184,13 +184,13 @@ EXPECTED_FULL = """\
 
 | Gate | Criterion | Measured | Threshold | Status |
 |---|---|---|---|---|
-| G1 (a) | Jev nDCG@10 ≥ Gemini nDCG@10 - 0,01 | 0.8000 | 0.9809 | ❌ |
-| G1 (b) | Jev mean top-1 grade ≥ Gemini - 0.1 | 2.6667 | 3.9000 | ❌ |
-| G1 (c) | Jev nDCG@10 ≥ determinisztikus + 0,02 | 0.8000 | 0.7061 | ✅ |
-| G1 (d) instruction | instruction-type adversarial hits in the top 3 ≤ Gemini's | 2.0000 | 3.0000 | ✅ |
-| G1 (d) all | all adversarial hits in the top 3 ≤ Gemini's | 3.0000 | 4.0000 | ✅ |
-| G2 token | input token / rerank p50 ≤ 3300 | 3150.0000 | 3300.0000 | ✅ |
-| G2 cost | Jev cost per rerank ≤ 60% of Gemini's real cost | 0.0001 | 0.0000 | ❌ |
+| G1 (a) | Jev nDCG@10 ≥ Gemini nDCG@10 - 0.01 | 0.8000 | 0.9809 | FAIL |
+| G1 (b) | Jev mean top-1 grade ≥ Gemini - 0.1 | 2.6667 | 3.9000 | FAIL |
+| G1 (c) | Jev nDCG@10 ≥ deterministic + 0.02 | 0.8000 | 0.7061 | pass |
+| G1 (d) instruction | instruction-type adversarial hits in the top 3 ≤ Gemini's | 2.0000 | 3.0000 | pass |
+| G1 (d) all | all adversarial hits in the top 3 ≤ Gemini's | 3.0000 | 4.0000 | pass |
+| G2 token | input token / rerank p50 ≤ 3300 | 3150.0000 | 3300.0000 | pass |
+| G2 cost | Jev cost per rerank ≤ 60% of Gemini's real cost | 0.0001 | 0.0000 | FAIL |
 
 ## By query (nDCG@10)
 
@@ -251,7 +251,7 @@ async def test_the_full_report_is_byte_identical() -> None:
         checks=(
             GateCheck(
                 gate="G1 (a)",
-                description="Jev nDCG@10 ≥ Gemini nDCG@10 - 0,01",
+                description="Jev nDCG@10 ≥ Gemini nDCG@10 - 0.01",
                 measured=0.7999770933423677,
                 threshold=0.9808842494603752,
                 passed=False,
@@ -265,7 +265,7 @@ async def test_the_full_report_is_byte_identical() -> None:
             ),
             GateCheck(
                 gate="G1 (c)",
-                description="Jev nDCG@10 ≥ determinisztikus + 0,02",
+                description="Jev nDCG@10 ≥ deterministic + 0.02",
                 measured=0.7999770933423677,
                 threshold=0.7060810684256661,
                 passed=True,
@@ -320,7 +320,7 @@ async def test_a_report_without_optional_sections_keeps_the_two_tables() -> None
             (
                 GateCheck(
                     gate="G1 (a)",
-                    description="Jev nDCG@10 ≥ Gemini nDCG@10 - 0,01",
+                    description="Jev nDCG@10 ≥ Gemini nDCG@10 - 0.01",
                     measured=0.8838,
                     threshold=0.8734999999999999,
                     passed=True,
@@ -334,7 +334,7 @@ async def test_a_report_without_optional_sections_keeps_the_two_tables() -> None
                 ),
                 GateCheck(
                     gate="G1 (c)",
-                    description="Jev nDCG@10 ≥ determinisztikus + 0,02",
+                    description="Jev nDCG@10 ≥ deterministic + 0.02",
                     measured=0.8838,
                     threshold=0.8502000000000001,
                     passed=True,
@@ -370,7 +370,7 @@ async def test_a_report_without_optional_sections_keeps_the_two_tables() -> None
             (
                 GateCheck(
                     gate="G1 (a)",
-                    description="Jev nDCG@10 ≥ Gemini nDCG@10 - 0,01",
+                    description="Jev nDCG@10 ≥ Gemini nDCG@10 - 0.01",
                     measured=0.8838,
                     threshold=0.8734999999999999,
                     passed=True,
@@ -384,7 +384,7 @@ async def test_a_report_without_optional_sections_keeps_the_two_tables() -> None
                 ),
                 GateCheck(
                     gate="G1 (c)",
-                    description="Jev nDCG@10 ≥ determinisztikus + 0,02",
+                    description="Jev nDCG@10 ≥ deterministic + 0.02",
                     measured=0.8838,
                     threshold=0.8502000000000001,
                     passed=True,
@@ -420,7 +420,7 @@ async def test_a_report_without_optional_sections_keeps_the_two_tables() -> None
             (
                 GateCheck(
                     gate="G1 (a)",
-                    description="Jev nDCG@10 ≥ Gemini nDCG@10 - 0,01",
+                    description="Jev nDCG@10 ≥ Gemini nDCG@10 - 0.01",
                     measured=0.8838,
                     threshold=0.8734999999999999,
                     passed=True,
@@ -434,7 +434,7 @@ async def test_a_report_without_optional_sections_keeps_the_two_tables() -> None
                 ),
                 GateCheck(
                     gate="G1 (c)",
-                    description="Jev nDCG@10 ≥ determinisztikus + 0,02",
+                    description="Jev nDCG@10 ≥ deterministic + 0.02",
                     measured=0.8838,
                     threshold=0.8502000000000001,
                     passed=True,
@@ -463,7 +463,7 @@ async def test_a_report_without_optional_sections_keeps_the_two_tables() -> None
             (
                 GateCheck(
                     gate="G1 (a)",
-                    description="Jev nDCG@10 ≥ Gemini nDCG@10 - 0,01",
+                    description="Jev nDCG@10 ≥ Gemini nDCG@10 - 0.01",
                     measured=0.8838,
                     threshold=0.8734999999999999,
                     passed=True,
@@ -477,7 +477,7 @@ async def test_a_report_without_optional_sections_keeps_the_two_tables() -> None
                 ),
                 GateCheck(
                     gate="G1 (c)",
-                    description="Jev nDCG@10 ≥ determinisztikus + 0,02",
+                    description="Jev nDCG@10 ≥ deterministic + 0.02",
                     measured=0.8838,
                     threshold=0.8502000000000001,
                     passed=True,

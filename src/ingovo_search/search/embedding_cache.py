@@ -58,7 +58,6 @@ def raw_response_cache_allowed(payload: SearchRequest, *, has_images: bool = Fal
         and payload.refinement_overrides is None
         and not payload.prior_clarifications
         and not payload.session_signals
-        and not payload.w_overrides
     )
 
 

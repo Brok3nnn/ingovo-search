@@ -3,7 +3,7 @@
 The orchestration lives in `ingovo_search.search`:
 `request.execute_search_request` runs one request, `clarify.clarify_search` re-runs
 the session's last parsed query with the buyer's answer, and
-`pipeline.run_search_pipeline` is the shared §6.4 pipeline, one stage per function.
+`pipeline.run_search_pipeline` is the shared pipeline, one stage per function.
 The DTOs and scoring builders live in `ingovo_search.search`, the session mutation
 utilities in `search_session.py`.
 """

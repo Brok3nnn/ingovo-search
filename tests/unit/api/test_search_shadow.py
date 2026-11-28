@@ -17,6 +17,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from tests._fakes import fake_db_session
 
 from ingovo_search.api.deps import (
     get_db_session,
@@ -47,12 +48,6 @@ from ingovo_search.types.errors import JevError
 
 SECRET = b"x" * 32
 QUERY = "csendes, erkélyes lakás Budán"
-
-
-# FastAPI resolves an override's own signature, and AsyncMock's `*args, **kwargs` would become required
-# query parameters, so the override is a parameterless factory (a fresh mock per request).
-def _fresh_async_mock() -> AsyncMock:
-    return AsyncMock()
 
 
 def _property(listing_id: str) -> SimpleNamespace:
@@ -107,9 +102,9 @@ def _app() -> FastAPI:
     application.dependency_overrides[get_session_cache] = lambda: session_cache
     application.dependency_overrides[get_session_secret] = lambda: SECRET
     application.dependency_overrides[get_session_cookie_secure] = lambda: False
-    application.dependency_overrides[get_llm_client] = _fresh_async_mock
+    application.dependency_overrides[get_llm_client] = lambda: AsyncMock()  # noqa: PLW0108 -- FastAPI would read the class's own signature
     application.dependency_overrides[get_embedding_client] = lambda: embedding_client
-    application.dependency_overrides[get_db_session] = _fresh_async_mock
+    application.dependency_overrides[get_db_session] = fake_db_session
     return application
 
 

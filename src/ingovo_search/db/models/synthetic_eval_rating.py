@@ -1,6 +1,6 @@
 """SyntheticEvalRating — relevance ratings of (query, listing) pairs, human or LLM judge.
 
-One row per (query, property, rater) triple. Graded 1-5 per §17.2.5 rating UI.
+One row per (query, property, rater) triple, graded 1-5.
 """
 
 from __future__ import annotations

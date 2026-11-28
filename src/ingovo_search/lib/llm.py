@@ -91,7 +91,7 @@ class LlmClient(Protocol):
 class CountingLlmClient:
     """Wraps an `LlmClient` to tally calls per phase + per model for one request.
 
-    §16 observability — every Gemini call in a search goes through `complete`,
+    Observability: every Gemini call in a search goes through `complete`,
     so wrapping the per-request client here yields an exact, auditable count of
     parser / rerank / narrative / fallback calls. The orchestrator sets `phase`
     around each pipeline step via `set_llm_phase`; calls outside a known step
@@ -245,7 +245,7 @@ class GoogleAiClient:
                 return text
             except Exception as exc:  # noqa: BLE001
                 # Not a swallow: every failure is logged here with its traceback and
-                # the last one is re-raised below. The breadth only decides which
+                # the last one is raised below as an `LlmError`. The breadth only decides which
                 # failures earn a try on the next model, and the SDK's surface —
                 # APIError (quota, a retired model id), httpx transport errors, the
                 # ValueErrors of response parsing, our own LlmError on an empty
@@ -262,9 +262,10 @@ class GoogleAiClient:
                     exc_info=exc,
                 )
 
-        if last_exc is not None:
-            raise last_exc
-        raise RuntimeError(f"all LLM model attempts failed for {req.model}")
+        # Every model in the chain failed. Raise the project's own error, chained to the
+        # provider's, so the callers that degrade on `LlmError` (the parser's rule-based
+        # fallback, the rerank's deterministic order) treat an outage like any model failure.
+        raise LlmError(f"every model failed for {req.model}: {type(last_exc).__name__}") from last_exc
 
 
 def fixture_key(req: LlmRequest) -> str:

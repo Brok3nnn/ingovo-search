@@ -1,4 +1,4 @@
-"""Versioned prompts for §11 Tier-L rerank + HU rationale generation.
+"""Versioned prompts for Tier-L rerank + HU rationale generation.
 
 The prompts are written in Hungarian, the language of the product. Bump
 `RERANK_PROMPT_VERSION` whenever the prompt content changes so the rerank
@@ -40,21 +40,20 @@ Kizárólag érvényes JSON formátumban válaszolj. Ne írj kísérőszöveget 
 RERANK_CORRECTION_SYSTEM_PROMPT = """Az előző válaszod sémaellenőrzése (schema validation) sikertelen volt. Kérlek, generáld le újra a választ egyetlen JSON objektumban, amely pontosan illeszkedik a RerankResponse sémára. Ne fűzz hozzá semmilyen magyarázatot."""
 
 
-# --- §11 Phase 5: rank-only mode ------------------------------------------
+# --- Rank-only mode -------------------------------------------------------
 #
 # A latency-optimised rerank variant that returns ONLY the final order (rank +
 # low_confidence) and skips the per-item HU rationale. The rationale is the
 # bulk of the rerank LLM's *output* tokens (~20 words x up to 10 items), so
 # dropping it materially cuts the cold rerank latency while the ranking signal
 # (which candidate, in what order) is unchanged — the model still reasons over
-# the same inputs and emits the same ranks. The user-facing "Ingovo elemzés"
-# drawer already produces the rich explanation on demand, and the results UI
-# falls back gracefully when `rationale` is absent (see `getAiHeadline`/
-# `getAiBody`), so deferring the rationale carries no UI regression.
+# the same inputs and emits the same ranks. In the full product a separate
+# analysis drawer writes the rich explanation on demand, and the results UI
+# falls back gracefully when `rationale` is absent.
 #
 # Distinct prompt version so the rerank cache never serves a rank-only result
 # where a rationale result is expected, or vice versa (the cache key folds in
-# the prompt version — §11 / Phase 8 cache correctness).
+# the prompt version).
 RERANK_RANK_ONLY_PROMPT_VERSION = "rerank/v2-rank-only-structured-relevance-signal"
 
 RERANK_RANK_ONLY_SYSTEM_PROMPT = """Te vagy az ingovo magyar ingatlanpiactér csúcsminőségű (Tier-L) újra-rangsoroló (reranker) modulja. Kapsz egy értelmezett magyar keresési kifejezést, a felhasználó megadott preferenciáit, a legutóbbi felhasználói interakciókat (session signals), és maximum 30 jelölt ingatlant (mindegyikhez egy rövid magyar összefoglalót).
@@ -77,7 +76,7 @@ RERANK_RANK_ONLY_CORRECTION_SYSTEM_PROMPT = """Az előző válaszod sémaellenő
 
 
 class RerankCandidate(BaseModel):
-    """One candidate fed into the reranker: id + the §4-precomputed short summary."""
+    """One candidate fed into the reranker: id + its precomputed short summary."""
 
     model_config = {"frozen": True}
 

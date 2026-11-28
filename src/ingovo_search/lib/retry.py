@@ -1,6 +1,6 @@
 """Generic async retry helper with exponential backoff.
 
-Used by §3's `photo_mirror` and `geocode_address` to wrap transient HTTP failures.
+Used by the `photo_mirror` and `geocode_address` to wrap transient HTTP failures.
 Callers decide whether `RetryExhaustedError` is recoverable (fall back to original
 input) or fatal (let propagate).
 """

@@ -1,6 +1,6 @@
-"""Unit tests for the §13 shared caching layer.
+"""Unit tests for the shared caching layer.
 
-The four §13 acceptance criteria are exercised against both backends via a
+The four acceptance criteria are exercised against both backends via a
 single parametrised conformance suite:
 
 1. `set("k", b"...", 60)` then `get("k")` returns the bytes.
@@ -23,9 +23,7 @@ from ingovo_search.lib.cache import (
     RedisCache,
     embedding_cache_key,
     enrichment_cache_key,
-    geocode_cache_key,
     get_json,
-    normalise_address,
     normalise_query,
     parser_cache_key,
     raw_search_response_cache_key,
@@ -106,7 +104,7 @@ CACHE_FACTORIES: list[tuple[str, CacheFactory]] = [
 
 @pytest.mark.parametrize(("name", "factory"), CACHE_FACTORIES)
 async def test_set_then_get_returns_bytes(name: str, factory: CacheFactory) -> None:
-    """§13 acceptance 1 — round-trip across both backends."""
+    """Round-trip across both backends."""
     _ = name
     cache = factory(_FakeClock())
     await cache.set("k", b'{"hello": "world"}', ttl_seconds=60)
@@ -116,7 +114,7 @@ async def test_set_then_get_returns_bytes(name: str, factory: CacheFactory) -> N
 
 @pytest.mark.parametrize(("name", "factory"), CACHE_FACTORIES)
 async def test_get_after_ttl_returns_none(name: str, factory: CacheFactory) -> None:
-    """§13 acceptance 2 — entries expire after their TTL."""
+    """Entries expire after their TTL."""
     _ = name
     clock = _FakeClock()
     cache = factory(clock)
@@ -140,7 +138,7 @@ async def test_get_before_ttl_returns_bytes(name: str, factory: CacheFactory) ->
 
 @pytest.mark.parametrize(("name", "factory"), CACHE_FACTORIES)
 async def test_delete_evicts_entry(name: str, factory: CacheFactory) -> None:
-    """§13 acceptance 3 — delete is immediate."""
+    """Delete is immediate."""
     _ = name
     cache = factory(_FakeClock())
     await cache.set("k", b"v", ttl_seconds=60)
@@ -354,10 +352,6 @@ def test_normalise_query_collapses_whitespace_and_case() -> None:
     assert normalise_query("BUDA\tPEST\n") == "buda pest"
 
 
-def test_normalise_address_lowercases_and_collapses() -> None:
-    assert normalise_address("  Andrássy út  10. ") == "andrássy út 10."
-
-
 def test_parser_cache_key_includes_prompt_version_and_normalises_query() -> None:
     k1 = parser_cache_key("parser/v0", "Olcsó panel Pest 13")
     k2 = parser_cache_key("parser/v0", "olcsó   panel   pest   13")
@@ -413,8 +407,3 @@ def test_embedding_cache_key_distinguishes_model_and_input_type() -> None:
     assert base.startswith("embed:embed-multilingual-v3.0:search_document:")
     assert base != other_model
     assert base != other_input
-
-
-def test_geocode_cache_key_uses_normalised_address() -> None:
-    key = geocode_cache_key("  Andrássy út  10.  ")
-    assert key == "geocode:andrássy út 10."

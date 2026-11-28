@@ -1,4 +1,4 @@
-"""§14 step 7 — applying a clarification answer.
+"""Applying a clarification answer.
 
 `apply_clarification(parsed, answer)` mutates a copy of `ParsedQuery` based on
 the answer's structured `option_id`. The dispatch syntax is a tiny DSL:
@@ -16,7 +16,7 @@ the answer's structured `option_id`. The dispatch syntax is a tiny DSL:
 - `"skip"`                   → returns the parsed query unchanged
 
 `apply_clarification` returns a new frozen `ParsedQuery`; it does NOT introduce
-a new scoring term. Acceptance 3 — `ScoreBreakdown` retains its ten v0 fields.
+a new scoring term: `ScoreBreakdown` keeps its ten v0 fields.
 
 Each prefix has one handler in `_OPTION_HANDLERS`; `skip`, an id without a
 right-hand side and an unknown prefix return the query unchanged. The question

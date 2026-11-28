@@ -1,4 +1,4 @@
-"""Unit tests for the §6 listing quality score.
+"""Unit tests for the listing quality score.
 
 All functions under test are pure logic, so these run against lightweight
 stubs rather than the real `Property` ORM model — no DB access.
@@ -90,7 +90,7 @@ def _low_quality_listing() -> _Listing:
     )
 
 
-# --- Acceptance test 1: high-quality listing ---------------------------------
+# --- high-quality listing ---------------------------------
 
 
 def test_high_quality_listing_scores_near_095() -> None:
@@ -98,7 +98,7 @@ def test_high_quality_listing_scores_near_095() -> None:
     assert math.isclose(score, 0.95, abs_tol=0.02)
 
 
-# --- Acceptance test 2: low-quality listing ----------------------------------
+# --- low-quality listing ----------------------------------
 
 
 def test_low_quality_listing_scores_near_015() -> None:
@@ -106,7 +106,7 @@ def test_low_quality_listing_scores_near_015() -> None:
     assert math.isclose(score, 0.15, abs_tol=0.03)
 
 
-# --- Acceptance test 3: coaching suggestions ---------------------------------
+# --- coaching suggestions ---------------------------------
 
 
 def test_breakdown_suggests_improvements_when_photo_score_low() -> None:
@@ -123,7 +123,7 @@ def test_breakdown_has_no_suggestions_for_high_quality_listing() -> None:
     assert breakdown.suggested_improvements == []
 
 
-# --- Acceptance test 4: determinism ------------------------------------------
+# --- determinism ------------------------------------------
 
 
 def test_score_is_deterministic_for_same_input() -> None:

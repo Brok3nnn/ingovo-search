@@ -52,7 +52,7 @@ async def discard_stale_response_cache_entry(cache: Cache, key: str) -> None:
     try:
         await cache.delete(key)
     except (OSError, ValueError, TypeError) as exc:
-        search_logger.warning("stale search response cache delete failed", extra={"cache_key": key, "error": str(exc)})
+        search_logger.warning("stale search response cache delete failed", cache_key=key, error=str(exc))
 
 
 def response_cache_ttl_seconds(

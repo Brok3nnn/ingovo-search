@@ -1,4 +1,4 @@
-"""§14 ranking guardrails: three rules that scoring + rerank must respect.
+"""Ranking guardrails: three rules that scoring + rerank must respect.
 
 1. **No paid-placement fields enter scoring.** Any future ad-like field is
    rejected before it reaches `compute_score`.
@@ -8,8 +8,8 @@
    `MAX_RERANK_DELTA` positions relative to its pre-rerank index; movements
    beyond the bound are clamped back and logged at WARNING level for review.
 
-Acceptance is §14 step 9 + step 11 — `enforce_bounded_rerank` is the canonical
-post-rerank ordering used by `/api/search`.
+`enforce_bounded_rerank` is the canonical post-rerank ordering used by
+`/api/search`.
 """
 
 from __future__ import annotations
@@ -153,7 +153,7 @@ def enforce_bounded_rerank(
     in the output. The result is a deduplicated id list of the same set as
     `pre_order ∩ post_order`, with hard-filter preservation as a precondition
     (call `assert_hard_filter_preserved` upstream). Out-of-bound movements are
-    logged at WARNING for review per §14 step 8.
+    logged at WARNING for review.
     """
     if max_delta < 0:
         raise ValueError("max_delta must be non-negative")

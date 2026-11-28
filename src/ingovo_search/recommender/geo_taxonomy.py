@@ -1,6 +1,6 @@
-"""§10 data-driven Hungarian county taxonomy and curated Balaton shores.
+"""Data-driven Hungarian county taxonomy and curated Balaton shores.
 
-The §7 parser extracts fuzzy geographic cues (`geo_hints.county` and
+The parser extracts fuzzy geographic cues (`geo_hints.county` and
 `geo_hints.balaton_shore`) that resolve to **sets of settlement names** rather
 than coordinates. This module is the single source of truth for those sets, so
 `geo_score` can score a listing's city against the requested county / shore

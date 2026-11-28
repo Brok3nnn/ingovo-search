@@ -1,4 +1,4 @@
-"""§17.2.6 ranking-quality metrics — graded nDCG@k and top-1 relevance.
+"""Ranking-quality metrics — graded nDCG@k and top-1 relevance.
 
 Canonical home for the discounted-cumulative-gain math (the top-level
 `eval/score_ndcg.py` runner re-uses `compute_dcg` / `compute_ndcg` from here).
@@ -6,7 +6,7 @@ Graded formulation `(2^rel - 1) / log2(i + 2)`, standard for ratings in [0, 5].
 
 Two nDCG flavours:
 - `compute_ndcg(relevances, k)` — ideal taken over the *returned* grades, for
-  scoring a single already-ranked list (the §17.2 runner).
+  scoring a single already-ranked list (the runner).
 - `ndcg_at_k(ranked_ids, relevance, k)` — ideal taken over *all judged* items
   for the query, so a ranking that omits a highly-rated listing is penalised.
   This is the right metric for the rerank candidate-count sweep, where a smaller

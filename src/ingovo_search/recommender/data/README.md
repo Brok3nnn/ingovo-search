@@ -1,8 +1,9 @@
 # Hungarian settlement dataset
 
-`hungary_settlements_2025.json` is a generated, versioned runtime asset (3,178 settlements
-and the 23 Budapest districts). The parser and the location scoring use it to resolve
-place names, counties and distances. Do not edit it by hand.
+`hungary_settlements_2025.json` is a generated, versioned runtime asset: 3,178 entries,
+the 3,155 settlements of the KSH gazetteer and the 23 Budapest districts. The parser and
+the location scoring use it to resolve place names, counties and distances. Do not edit
+it by hand.
 
 ## Sources and licence
 
@@ -15,18 +16,25 @@ place names, counties and distances. Do not edit it by hand.
   coordinates and GeoNames identifiers.
 
 Both sources are distributed under the Creative Commons Attribution 4.0 licence
-(CC BY 4.0). Attribution and warranty terms:
+(CC BY 4.0, <https://creativecommons.org/licenses/by/4.0/>). Attribution and warranty
+terms:
 
 - KSH: <https://www.ksh.hu/copyright>
 - GeoNames: <https://download.geonames.org/export/dump/readme.txt>
 
-Coordinates are joined to the KSH rows by canonical or alternate name and county code;
-Budapest districts additionally use their three-digit district code. The file was built
-by a generator in the original Ingovo repository, which fails unless every KSH row
-receives exactly one coordinate match, all identifiers are unique, and all 23 Budapest
-districts are present.
+## How it is built
 
-Pinned input SHA-256 hashes:
+`scripts/build_hungary_settlements.py` joins coordinates to the KSH rows by canonical or
+alternate name and county code; Budapest districts additionally use their three-digit
+district code. It fails unless every KSH row receives a coordinate, all identifiers are
+unique, and all 23 Budapest districts are present. With the two downloads above:
+
+```bash
+uv run python scripts/build_hungary_settlements.py --ksh-xlsx hnt_letoltes_2025.xlsx \
+    --geonames-zip HU.zip --output src/ingovo_search/recommender/data/hungary_settlements_2025.json
+```
+
+Pinned input SHA-256 hashes (the build records them in the file's `metadata`):
 
 - KSH XLSX: `d059a14883a27963daa234d9f3954eb68b4cbf967e796710a4bcdb4f03437991`
 - GeoNames ZIP: `d0487bb74ac16b8607edc934fff76c30f48e36e4e0a280e0be285b3ef543ba3d`

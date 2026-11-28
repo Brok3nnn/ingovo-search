@@ -1,7 +1,7 @@
-"""§14 step 3 — anonymous session state.
+"""Anonymous session state.
 
 Each browser carries a signed cookie holding an opaque session id; server-side
-state keyed by that id lives in Redis (via the §13 `Cache`) with a 7-day
+state keyed by that id lives in Redis (via the `Cache`) with a 7-day
 rolling TTL. State accumulates:
 
 - recent `ParsedQuery` values (last `MAX_RECENT_QUERIES`, FIFO),
@@ -9,16 +9,14 @@ rolling TTL. State accumulates:
 - in-session feedback signals (`SessionSignal` — `view_short` / `view_long` /
   `save` / `favorite` / `hide` / `thumb_up` / `thumb_down` / `contact` /
   `viewing_booked`, vocabulary mirrors `recommender.pooled_signal`),
-- previously-answered `ClarificationAnswer` items,
-- `w_*` overrides from the trade-off-button affordance.
+- previously-answered `ClarificationAnswer` items.
 
 A signed-out user's state is *not* mixed with another anonymous user's: the
-cookie signature is the only token of trust. On account creation the routers
-promote the state into a persistent `UserPreferences` row (§14e) and call
-`clear`. An explicit "start fresh" UI action also calls `clear`.
+cookie signature is the only token of trust. A search with `reset_session`
+starts the state afresh.
 
 The whole module is pure: no FastAPI imports, no database imports, just the
-§13 `Cache` Protocol and Pydantic. Routers wire `SessionStore` against the
+`Cache` Protocol and Pydantic. Routers wire `SessionStore` against the
 production Redis cache; tests pass `MemoryCache`.
 """
 
@@ -93,10 +91,9 @@ class SessionSignal(BaseModel):
 
 
 class RefinementOverrides(BaseModel):
-    """Per-search refinement layer — the §14 step-6 trade-off-button affordance.
+    """Per-search refinement layer — the trade-off-button affordance.
 
-    Mirrors the design spec §14 step 6's `RefinementOverrides`. Each field
-    is optional: a `None` means "leave the parsed-query field as parsed", a
+    Each field is optional: a `None` means "leave the parsed-query field as parsed", a
     value means "replace it for this search". The four parser-schema models
     are already structurally `Partial`-compatible (every field defaults to
     `None`), so we reuse them rather than introducing parallel `*_Partial`
@@ -136,10 +133,6 @@ def _empty_answer_list() -> list[ClarificationAnswer]:
     return []
 
 
-def _empty_w_overrides() -> dict[str, float]:
-    return {}
-
-
 class SessionState(BaseModel):
     """Server-side anonymous-session state, JSON-serialized into Redis."""
 
@@ -152,7 +145,6 @@ class SessionState(BaseModel):
     refinement_overrides: RefinementOverrides | None = None
     session_signals: list[SessionSignal] = Field(default_factory=_empty_signal_list)
     clarification_answers: list[ClarificationAnswer] = Field(default_factory=_empty_answer_list)
-    w_overrides: dict[str, float] = Field(default_factory=_empty_w_overrides)
 
 
 # --- Cookie signing --------------------------------------------------------
@@ -201,10 +193,10 @@ def _utcnow() -> datetime:
 
 
 class SessionStore:
-    """Get / update / clear / create against a §13 `Cache`.
+    """Get / update / clear / create against a `Cache`.
 
-    Every `update` rewrites the entry with a fresh TTL — the spec's "7-day
-    rolling" semantic. `get` does not refresh on its own; reads cost one
+    Every `update` rewrites the entry with a fresh TTL — a 7-day rolling
+    lifetime. `get` does not refresh on its own; reads cost one
     Redis op and don't extend lifetime. Sessions die after 7 idle days
     even if the browser keeps GET-polling, which is the security-side
     desired behaviour. Active users naturally generate writes (search,

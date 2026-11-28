@@ -1,4 +1,4 @@
-"""Async SQLAlchemy session factory. Used as a FastAPI dependency once routes exist (§14)."""
+"""Async SQLAlchemy session factory. Used as a FastAPI dependency once routes exist."""
 
 from __future__ import annotations
 

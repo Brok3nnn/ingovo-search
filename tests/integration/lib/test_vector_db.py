@@ -3,7 +3,7 @@
 Run via:
     uv run pytest -m integration
 
-These cover §1's acceptance tests that need a real database.
+These cover acceptance tests that need a real database.
 """
 
 from __future__ import annotations
@@ -86,7 +86,7 @@ async def test_insert_embedding_round_trip(session: AsyncSession) -> None:
 
 
 async def test_knn_returns_ranked_by_similarity(session: AsyncSession) -> None:
-    """§1 acceptance #1: property kNN returns listings ranked by cosine similarity."""
+    """Property kNN returns listings ranked by cosine similarity."""
     query_vec = [1.0, *([0.0] * (VECTOR_DIM - 1))]
     embeddings = [
         [1.0, *([0.0] * (VECTOR_DIM - 1))],
@@ -153,7 +153,7 @@ async def test_knn_filters_candidate_ids(session: AsyncSession) -> None:
 
 
 async def test_geo_round_trip(session: AsyncSession) -> None:
-    """§1 acceptance #2: geo_set_point + geo_st_dwithin round-trip returns the property ID."""
+    """`geo_set_point` + `geo_st_dwithin` round-trip returns the property ID."""
     pid = await _insert_property(session)
 
     # Budapest city centre

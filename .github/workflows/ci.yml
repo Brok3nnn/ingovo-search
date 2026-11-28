@@ -13,6 +13,8 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# The live evals (eval/run_parser_eval.py and the others) need paid model keys, so
+# they run locally, not here; see "Evals and quality gates" in the README.
 jobs:
   lint:
     name: Lint and format
@@ -23,6 +25,8 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          # The test jobs save the shared uv cache; saving it here too only races them.
+          save-cache: false
       - run: uv sync --locked
       - run: uv run ruff check .
       - run: uv run ruff format --check .
@@ -36,6 +40,7 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          save-cache: false
       - run: uv sync --locked
       - run: uv run pyright
 
@@ -55,28 +60,4 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: uv sync --locked
       # No keys, no database: integration tests are deselected by default.
-      - run: uv run pytest --cov --cov-report=term
-
-  parser-eval:
-    name: Parser eval (live Gemini)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs: [test]
-    # Secrets are not available to pull requests from forks; the step below skips then.
-    if: github.event_name != 'pull_request'
-    env:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-    steps:
-      - uses: actions/checkout@v7
-      - name: Skip without a GEMINI_API_KEY secret
-        if: env.GEMINI_API_KEY == ''
-        run: echo "::notice::GEMINI_API_KEY secret is not set; the live parser eval is skipped."
-      - uses: astral-sh/setup-uv@v7
-        if: env.GEMINI_API_KEY != ''
-        with:
-          enable-cache: true
-      - if: env.GEMINI_API_KEY != ''
-        run: uv sync --locked
-      - name: Run the parser eval
-        if: env.GEMINI_API_KEY != ''
-        run: uv run python eval/run_parser_eval.py
+      - run: uv run pytest --cov --cov-report=term --cov-fail-under=90

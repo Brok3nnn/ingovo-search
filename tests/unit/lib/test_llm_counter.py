@@ -1,4 +1,4 @@
-"""Unit tests for the §16 per-request LLM call counter."""
+"""Unit tests for the per-request LLM call counter."""
 
 from __future__ import annotations
 

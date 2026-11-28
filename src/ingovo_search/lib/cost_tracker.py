@@ -1,4 +1,4 @@
-"""§16 LLM cost tracking — per-call pricing and the `EnrichmentLog` cost per UTC day.
+"""LLM cost tracking — per-call pricing and the `EnrichmentLog` cost per UTC day.
 
 Every LLM call writes an `EnrichmentLog` row with `cost_usd`. The budget guardrail
 (`lib/budget_guard.py`) reads the day's total to switch optional LLM work off as
@@ -229,4 +229,4 @@ async def daily_llm_cost_by_feature(session: AsyncSession, day: date) -> dict[st
     return buckets
 
 
-# ── M0.7 AI-agent cost baseline ────────────────────────────────────────────
+# ── AI-agent cost baseline ────────────────────────────────────────────

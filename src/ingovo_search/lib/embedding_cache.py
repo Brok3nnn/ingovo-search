@@ -1,4 +1,4 @@
-"""Cache backends for §5 embeddings.
+"""Cache backends for embeddings.
 
 Cache key encodes `(model, input_type, sha256(text))` so the cache invalidates
 naturally on model swap or input-type change. Two backends ship by default:

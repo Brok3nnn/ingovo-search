@@ -1,7 +1,7 @@
 """Shared domain contract for geographic eligibility and canonical ranking.
 
-This module deliberately contains no database or API orchestration. R2-R7 use
-these validated types and constants while replacing the legacy search paths.
+This module deliberately contains no database or API orchestration: the search
+and scoring code share these validated types and constants.
 """
 
 from __future__ import annotations

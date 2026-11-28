@@ -1,4 +1,4 @@
-"""Unit tests for M3 refinement-suggestion generator."""
+"""Unit tests for refinement-suggestion generator."""
 
 from __future__ import annotations
 

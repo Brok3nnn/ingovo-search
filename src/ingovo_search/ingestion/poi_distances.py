@@ -1,4 +1,4 @@
-"""Per-listing POI proximity refresh (run by the seed command, and nightly in production).
+"""Per-listing POI proximity refresh (run by the seed command; the full product also ran it nightly).
 
 For every geocoded listing, compute the distance in metres to the nearest POI
 of each category within `POI_DISTANCE_RADIUS_M`, and store the map in

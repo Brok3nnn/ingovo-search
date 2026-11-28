@@ -1,4 +1,4 @@
-"""Versioned prompts for §7 query parsing.
+"""Versioned prompts for query parsing.
 
 The prompts are written in Hungarian, the language of the product, and are
 measured by the parser eval (`eval/run_parser_eval.py`). Bump `PARSER_PROMPT_VERSION`

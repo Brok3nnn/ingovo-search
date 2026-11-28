@@ -1,4 +1,4 @@
-"""§16 LLM budget guardrails — degrade optional AI when the day's spend is high.
+"""LLM budget guardrails — degrade optional AI when the day's spend is high.
 
 The cost-alert job only *notifies* at 90% of `LLM_DAILY_BUDGET_USD`. This module
 adds *enforcement* for the search path so spend cannot run away unbounded:

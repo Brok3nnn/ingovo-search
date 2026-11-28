@@ -1,4 +1,4 @@
-"""Unit tests for §10 static geo taxonomy (counties + Balaton shores)."""
+"""Unit tests for the static geo taxonomy (counties + Balaton shores)."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""§17 rerank candidate-count sweep — compare top 30 / 20 / 15 offline.
+"""Rerank candidate-count sweep — compare top 30 / 20 / 15 offline.
 
 Find the smallest number of
 candidates sent to the Gemini reranker that preserves ranking quality, to cut
@@ -8,7 +8,7 @@ The orchestration here is pure aside from an injected `search_fn`, so the
 metric aggregation and the "pick the smallest count that preserves quality"
 decision are unit-tested with a fake search function. The live runner
 (`rerank_candidate_count.py`) supplies a `search_fn` backed by the real pipeline
-+ DB + Gemini and the §17.2 ratings.
++ DB + Gemini and the ratings.
 """
 
 from __future__ import annotations
@@ -98,7 +98,7 @@ async def run_comparison(
 def recommend_candidate_count(results: Sequence[VariantResult], *, tolerance: float = 0.005) -> int:
     """Smallest candidate count whose mean nDCG is within `tolerance` of the best.
 
-    This is the Phase 4 acceptance: pick the smallest candidate set that still
+    The decision rule: pick the smallest candidate set that still
     preserves quality. Ties on quality favour the cheaper (smaller) count.
     """
     if not results:

@@ -1,4 +1,4 @@
-"""AI search latency + quality benchmark — the §DoD 50-query proof harness.
+"""AI search latency + quality benchmark over 50 annotated queries.
 
 Drives the live `POST /api/search` endpoint over a set of annotated queries
 (`latency_benchmark_queries.jsonl`) and measures, per query:

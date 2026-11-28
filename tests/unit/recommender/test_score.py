@@ -1,9 +1,9 @@
-"""Unit tests for §8 scoring — `compute_score`, `softpref_core_match`, cosine.
+"""Unit tests for the scoring — `compute_score`, `softpref_core_match`, cosine.
 
 `compute_score` is pure (given precomputed `pooled_signal_value` /
-`geo_score_value`), so the §8 acceptance tests 3, 4 (in `test_anchor_score`),
-5, 6, 7 land here. The DB-backed `recommend` orchestrator (acceptance 1, 2, 8)
-lives in `tests/integration/recommender/test_score.py`.
+`geo_score_value`), so its tests live here (the anchor curve in
+`test_anchor_score`). The DB-backed `recommend` orchestrator is tested in
+`tests/integration/recommender/test_score.py`.
 
 Test fixtures build real `Property` instances — the `ListingFeatures` Protocol
 is structural, so `Property` satisfies it without a DB.
@@ -127,11 +127,11 @@ def test_cosine_zero_norm_vector_scores_zero() -> None:
     assert cosine_similarity([0.0, 0.0], [1.0, 0.0]) == 0.0
 
 
-# --- softpref_core_match (Acceptance 3) -------------------------------------
+# --- softpref_core_match -------------------------------------
 
 
 def test_softpref_core_match_returns_half_for_one_of_two() -> None:
-    """§8 acceptance 3: ["parking", "renovated"] with parking-yes / no-renovation → 0.5."""
+    """["parking", "renovated"] with parking-yes / no-renovation → 0.5."""
     prop = _make_property(has_parking=True, renovation_state="original")
     assert softpref_core_match(["parking", "renovated"], prop) == 0.5
 
@@ -146,17 +146,17 @@ def test_softpref_core_match_empty_prefs_returns_zero() -> None:
 
 
 def test_softpref_core_match_handles_missing_features_safely() -> None:
-    """Acceptance 7: missing categorical / boolean features stay eligible."""
+    """Missing categorical / boolean features stay eligible."""
     prop = _make_property(has_parking=None, has_garage=None, renovation_state=None)
     # No exception; nothing matches.
     assert softpref_core_match(["parking", "renovated"], prop) == 0.0
 
 
-# --- compute_score: top match (Acceptance 5) --------------------------------
+# --- compute_score: top match --------------------------------
 
 
 def test_compute_score_on_top_match_exceeds_07() -> None:
-    """§8 acceptance 5: a deliberate top-match scores > 0.7."""
+    """A deliberate top-match scores > 0.7."""
     emb = [1.0, 0.0, 0.0, 0.0]
     prop = _make_property(
         has_parking=True,
@@ -185,11 +185,11 @@ def test_compute_score_on_top_match_exceeds_07() -> None:
     assert breakdown.total > 0.7
 
 
-# --- compute_score: deliberate mismatch (Acceptance 5) ----------------------
+# --- compute_score: deliberate mismatch ----------------------
 
 
 def test_compute_score_on_mismatch_below_03() -> None:
-    """§8 acceptance 5: a deliberate mismatch scores < 0.3."""
+    """A deliberate mismatch scores < 0.3."""
     prop = _make_property(
         has_parking=False,
         renovation_state="original",
@@ -221,11 +221,11 @@ def test_compute_score_on_mismatch_below_03() -> None:
     assert breakdown.total < 0.3
 
 
-# --- ScoreBreakdown structure (Acceptance 6) --------------------------------
+# --- ScoreBreakdown structure --------------------------------
 
 
 def test_score_breakdown_exposes_all_ten_term_contributions() -> None:
-    """§8 acceptance 6: all ten weight terms appear in `ScoreBreakdown`."""
+    """All ten weight terms appear in `ScoreBreakdown`."""
     breakdown = compute_score(_make_property(), _query(), ScoreInputs(explore=0.5, now=NOW))
     assert isinstance(breakdown, ScoreBreakdown)
     for term in (
@@ -262,7 +262,7 @@ def test_weights_dict_matches_spec_step_5() -> None:
 
 
 def test_weights_sum_within_unit_band() -> None:
-    """M4 calibration safety net: catch a fat-finger like `quality: 5.0` or
+    """Calibration safety net: catch a fat-finger like `quality: 5.0` or
     a typo that drops every weight to 0. Allows ±10% off unit-sum so
     intentional partial calibrations (sum 0.95-1.05) are still legal."""
     total = sum(WEIGHTS.values())

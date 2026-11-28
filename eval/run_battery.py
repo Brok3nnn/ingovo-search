@@ -1,4 +1,4 @@
-"""Phase 1 battery runner — end-to-end ranking regression over the eval set.
+"""Battery runner — end-to-end ranking regression over the eval set.
 
 For every record in `eval_set.starter.jsonl`, build the ParsedQuery directly
 from the record's `expected` block (deterministic — no LLM, no quota), run the
@@ -17,8 +17,8 @@ check three things:
 Embeddings use the deterministic `MockEmbeddingClient`: content/factual
 similarity terms are stable but semantically meaningless, which is fine — the
 battery guards filters, deterministic scoring terms (anchor, softpref, geo,
-POI), and ranking stability; semantic quality is Phase 2's rating loop.
-The §6.4 exploration injection (`explore` defaults to `random.random()`) is
+POI), and ranking stability; semantic quality is the rating loop's job.
+The exploration injection (`explore` defaults to `random.random()`) is
 zeroed via the weights override — production keeps its jitter, snapshots
 must not.
 
@@ -79,7 +79,7 @@ def _rooms_int(value: Any) -> int | None:
 
 
 def hard_filter_violations(hard: HardFilters, listing: Any) -> list[str]:
-    """Independent re-check of the §8 hard-filter contract on one returned listing.
+    """Independent re-check of the hard-filter contract on one returned listing.
 
     Mirrors `sql_filter` semantics: categorical/boolean constraints tolerate
     NULL listing values (missing data stays eligible); numeric bounds do not.
@@ -211,7 +211,7 @@ async def run_battery(update_golden: bool) -> int:
     print(f"queries: {len(records)}  empty: {empty}  p50: {p50:.0f} ms  p95: {p95:.0f} ms")
 
     if all_violations:
-        print(f"\n❌ HARD-FILTER VIOLATIONS ({len(all_violations)}):")
+        print(f"\nFAIL: {len(all_violations)} hard-filter violations:")
         for v in all_violations[:20]:
             print(f"  {v}")
         return 1
@@ -219,16 +219,16 @@ async def run_battery(update_golden: bool) -> int:
     if update_golden:
         GOLDEN_PATH.parent.mkdir(parents=True, exist_ok=True)
         GOLDEN_PATH.write_text(json.dumps(snapshot, ensure_ascii=False, indent=1), encoding="utf-8")
-        print(f"✅ golden snapshot written: {GOLDEN_PATH} ({len(snapshot)} queries)")
+        print(f"golden snapshot written: {GOLDEN_PATH} ({len(snapshot)} queries)")
         return 0
 
     if drift:
-        print(f"\n❌ SNAPSHOT DRIFT ({len(drift)} entries) — review, then --update to re-baseline:")
+        print(f"\nFAIL: snapshot drift in {len(drift)} entries; review, then re-baseline with --update:")
         for d in drift[:20]:
             print(f"  {d}")
         return 1
 
-    print("✅ no violations, no drift")
+    print("OK: no violations, no drift")
     return 0
 
 

@@ -1,4 +1,4 @@
-"""§14 step 7 — clarification policy.
+"""Clarification policy.
 
 `should_clarify(parsed, scored)` returns at most one skippable `Clarification`
 based on five trigger categories, in priority order:

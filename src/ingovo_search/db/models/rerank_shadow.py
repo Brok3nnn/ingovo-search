@@ -1,7 +1,7 @@
 """RerankShadowComparison — the Gemini and Jev orders of one live search, side by side.
 
 Written by the search pipeline's shadow task (`AI_SEARCH_RERANK_BACKEND=shadow`).
-`semantic_query` is user text: purge old rows (the original deployment kept 30 days).
+`semantic_query` is user text: purge old rows (the original project kept 30 days).
 """
 
 from __future__ import annotations

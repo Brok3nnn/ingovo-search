@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
-from typing import Any
+from typing import Any, get_args
 
 import pytest
 
+from ingovo_search.recommender.parser_schema import PoiCategory, PropertyType
 from ingovo_search.seed import (
     DEFAULT_LISTINGS_PATH,
     DEFAULT_POIS_PATH,
@@ -31,7 +33,7 @@ def _listing(**overrides: Any) -> dict[str, Any]:
         "city": "Budapest",
         "district": "13",
         "address": "Example utca 1",
-        "property_type": "panel",
+        "property_type": "Lakás",
         "rooms": 2,
         "area": 61.1,
         "lat": 47.52,
@@ -95,10 +97,37 @@ def test_every_shipped_listing_is_valid() -> None:
     assert len({p["id"] for p in params if p is not None}) == len(rows)
 
 
+def test_every_shipped_listing_has_a_property_type_the_search_filters_on() -> None:
+    """The parser emits only these labels and the SQL filter compares `property_type` with them.
+
+    A listing with any other value (a building type such as "panel") could never
+    match a query that names a property type.
+    """
+    labels = {str(label) for label in get_args(PropertyType.__value__)}
+    rows = load_json_list(DEFAULT_LISTINGS_PATH)
+
+    unknown = sorted({str(row.get("property_type")) for row in rows} - labels)
+    assert unknown == [], f"property types the search cannot match: {unknown}"
+    assert all(row["features"].get("build_type") for row in rows)
+
+
+def test_shipped_listings_name_a_street_not_a_building() -> None:
+    rows = load_json_list(DEFAULT_LISTINGS_PATH)
+    numbered = [row["source_id"] for row in rows if re.search(r"\s\d\S*$", str(row.get("address") or ""))]
+    assert numbered == []
+
+
+def test_the_demo_corpus_is_sale_only() -> None:
+    """The README says so: a rental listing would need a rental example there too."""
+    rows = load_json_list(DEFAULT_LISTINGS_PATH)
+    assert {row.get("transaction_type") for row in rows} == {"sale"}
+
+
 def test_every_shipped_poi_is_usable() -> None:
     rows = load_json_list(DEFAULT_POIS_PATH)
     assert rows
     assert all(poi_params(row) is not None for row in rows)
+    assert {row.get("category") for row in rows} <= set(get_args(PoiCategory.__value__))
 
 
 def test_load_json_list_rejects_a_non_list(tmp_path: Path) -> None:

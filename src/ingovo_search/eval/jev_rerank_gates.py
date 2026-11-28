@@ -85,7 +85,7 @@ def _quality_checks(jev: ArmSummary, gemini: ArmSummary, deterministic: ArmSumma
     return [
         GateCheck(
             "G1 (a)",
-            "Jev nDCG@10 ≥ Gemini nDCG@10 - 0,01",
+            "Jev nDCG@10 ≥ Gemini nDCG@10 - 0.01",
             jev.mean_ndcg_at_k,
             gemini.mean_ndcg_at_k - G1_NDCG_VS_GEMINI_TOLERANCE,
             jev.mean_ndcg_at_k >= gemini.mean_ndcg_at_k - G1_NDCG_VS_GEMINI_TOLERANCE,
@@ -99,7 +99,7 @@ def _quality_checks(jev: ArmSummary, gemini: ArmSummary, deterministic: ArmSumma
         ),
         GateCheck(
             "G1 (c)",
-            "Jev nDCG@10 ≥ determinisztikus + 0,02",
+            "Jev nDCG@10 ≥ deterministic + 0.02",
             jev.mean_ndcg_at_k,
             deterministic.mean_ndcg_at_k + G1_NDCG_OVER_DETERMINISTIC,
             jev.mean_ndcg_at_k >= deterministic.mean_ndcg_at_k + G1_NDCG_OVER_DETERMINISTIC,

@@ -1,15 +1,14 @@
-"""§10 learned region centroids — lookup, scoring, and nightly recompute.
+"""Learned region centroids — lookup, scoring, and nightly recompute.
 
 A fuzzy region name ("Budai-hegyvidék") has no fixed polygon. Instead it has a
 statistical centroid + spread, learned from the listings users positively
-engaged with on queries naming that region (the design spec §6.4
-"Learned centroids").
+engaged with on queries naming that region.
 
 - `matches_named_region` scores one listing against a region name: a Gaussian
   on the learned centroid once enough signal has accrued, otherwise the
   cold-start LLM district hint.
-- `recompute_region_centroid` is the nightly job (scheduled by §12) that
-  refreshes one region's centroid from the `interactions` table.
+- `recompute_region_centroid` is the nightly job (the full product scheduled it)
+  that refreshes one region's centroid from the `interactions` table.
 
 DB access is raw SQL (PostGIS `ST_X` / `ST_Y` / `ST_MakePoint`); the centroid
 math itself (`weighted_centroid`) is pure and unit-tested.
@@ -22,6 +21,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import cast
 
+import structlog
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,13 +30,15 @@ from ingovo_search.lib.llm import LlmClient
 from ingovo_search.recommender.geo_score import NO_LISTING_GEO, ListingGeo, gaussian_region_score, haversine_km
 from ingovo_search.recommender.pooled_signal import DECAY_WINDOW_SECONDS, SIGNAL_WEIGHTS
 from ingovo_search.recommender.region_llm_hint import RegionHintDistrict, hint_district_score, region_llm_hint
-from ingovo_search.types.errors import DbError
+from ingovo_search.types.errors import DbError, LlmError
+
+_logger = structlog.get_logger("ingovo_search.recommender.region_centroid")
 
 # Minimum positive-engagement count before the learned centroid replaces the
-# cold-start LLM hint (the design spec §10 step 2).
+# cold-start LLM hint.
 LEARNED_CENTROID_MIN_SIGNALS = 50
 
-# Only positive engagements shape a centroid — see Appendix C.
+# Only positive engagements shape a centroid.
 POSITIVE_SIGNAL_WEIGHTS: dict[str, float] = {name: w for name, w in SIGNAL_WEIGHTS.items() if w > 0}
 
 
@@ -210,9 +212,17 @@ async def resolve_named_region(
 
     hints = centroid.llm_hint_districts if centroid is not None else []
     if not hints:
-        generated = await region_llm_hint(region_name, client=client, session=session)
-        hints = generated.districts
-        await _cache_llm_hint(session, region_name, hints)
+        try:
+            generated = await region_llm_hint(region_name, client=client, session=session)
+        except LlmError as exc:
+            # A model outage or a twice-failed schema: the region name adds no
+            # geographic signal to this search, and the hint is retried on the next.
+            _logger.warning(
+                "region hint unavailable; scoring without it", region_name=region_name, error=type(exc).__name__
+            )
+        else:
+            hints = generated.districts
+            await _cache_llm_hint(session, region_name, hints)
     return ResolvedRegionMatcher(
         learned_lat=None,
         learned_lng=None,
@@ -244,7 +254,7 @@ async def matches_named_region(
 
 
 async def recompute_region_centroid(session: AsyncSession, region_name: str) -> None:
-    """Recompute and upsert one region's learned centroid (nightly §12 job).
+    """Recompute and upsert one region's learned centroid (nightly job).
 
     Aggregates listings with positive engagement on queries naming `region_name`
     over the last 365 days, weighting each by `signal_value * recency_decay *

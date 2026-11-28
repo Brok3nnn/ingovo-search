@@ -72,6 +72,7 @@ from ingovo_search.search.run import (
     elapsed_ms,
 )
 from ingovo_search.search.shadow import shadow_sampled_for
+from ingovo_search.types.errors import LlmError
 
 
 @dataclass(frozen=True, slots=True)
@@ -154,7 +155,7 @@ async def _open(
         state = await session_ctx.store.update(state)
     state = await accumulate_request_into_session(state, payload, session_ctx.store)
 
-    # Count every Gemini call this search makes, by phase, for §16 cost auditing.
+    # Count every Gemini call this search makes, by phase, for cost auditing.
     counting_client = CountingLlmClient(deps.llm_client)
     user_signed_in = getattr(session_ctx.request.state, "user_id", None) is not None
     settings = get_settings()
@@ -221,26 +222,25 @@ async def _serve_raw_cache(run: _RequestRun) -> SearchResponse | None:
             timings["total"] = elapsed_ms(run.started)
             search_logger.info(
                 "raw search response cache hit",
-                extra={
-                    "cache_key": run.raw_cache_key,
-                    "returned_count": len(cached_resp.results),
-                    "timings_ms": timings,
-                },
+                cache_key=run.raw_cache_key,
+                returned_count=len(cached_resp.results),
+                timings_ms=timings,
             )
             return cached_resp
 
         await discard_stale_response_cache_entry(run.deps.cache, run.raw_cache_key)
         search_logger.warning(
             "raw search response cache rejected by current public visibility",
-            extra={"cache_key": run.raw_cache_key, "returned_count": len(cached_resp.results)},
+            cache_key=run.raw_cache_key,
+            returned_count=len(cached_resp.results),
         )
     if cached_resp is not None:
         search_logger.info(
             "raw search response cache ignored because cached response needs clarification",
-            extra={"cache_key": run.raw_cache_key},
+            cache_key=run.raw_cache_key,
         )
     else:
-        search_logger.info("raw search response cache miss", extra={"cache_key": run.raw_cache_key})
+        search_logger.info("raw search response cache miss", cache_key=run.raw_cache_key)
     return None
 
 
@@ -261,7 +261,7 @@ def _start_speculative_embedding(run: _RequestRun) -> None:
 
 
 async def _parse(run: _RequestRun) -> None:
-    """The parser with its timeout and deterministic fallback; an image-only search skips it."""
+    """The parser, with the rule-based fallback on a timeout or a model failure; image-only searches skip it."""
     step_started = time.perf_counter()
     set_llm_phase(run.counting_client, "parser")
     query_text = (run.payload.query or "").strip()
@@ -290,8 +290,15 @@ async def _parse(run: _RequestRun) -> None:
             run.timings["parser_timeout"] = 1
             search_logger.warning(
                 "parser timed out; using deterministic fallback",
-                extra={"timeout_ms": timeout_ms},
+                timeout_ms=timeout_ms,
             )
+        except LlmError as exc:
+            # A model outage, or a schema failure after the correction retry: the
+            # rule-based reading serves, as on a timeout, instead of failing the search.
+            run.raw_parsed = fallback_parse_query(run.payload.query or "")
+            run.timings["parser_timeout"] = 0
+            run.timings["parser_error"] = 1
+            search_logger.warning("parser failed; using deterministic fallback", error=type(exc).__name__)
         except Exception:
             await discard_speculative_embedding(run.speculative)
             await cancel_image_task(run.image_task)
@@ -354,10 +361,10 @@ def _progress(run: _RequestRun) -> SearchProgress:
 
 
 async def _options(run: _RequestRun) -> SearchOptions:
-    """The pipeline options: the request's wishes, bounded by the §16 budget guardrail."""
+    """The pipeline options: the request's wishes, bounded by the budget guardrail."""
     payload = run.payload
     settings = run.settings
-    # §16 budget guardrail — when the day's spend is high, drop optional LLM work
+    # Budget guardrail — when the day's spend is high, drop optional LLM work
     # (narratives first, then rerank) so search stays up and costs stay bounded.
     budget_policy = await current_budget_policy(run.deps.db_session, budget_usd=settings.llm_daily_budget_usd)
     include_narratives = payload.include_narratives and budget_policy.allow_narratives
@@ -365,11 +372,9 @@ async def _options(run: _RequestRun) -> SearchOptions:
     if budget_policy.throttled and (payload.include_narratives or payload.include_rerank):
         search_logger.info(
             "search llm throttled by budget",
-            extra={
-                "spend_fraction": round(budget_policy.spend_fraction, 3),
-                "allow_narratives": budget_policy.allow_narratives,
-                "allow_rerank": budget_policy.allow_rerank,
-            },
+            spend_fraction=round(budget_policy.spend_fraction, 3),
+            allow_narratives=budget_policy.allow_narratives,
+            allow_rerank=budget_policy.allow_rerank,
         )
     return SearchOptions(
         user_signed_in=run.user_signed_in,
@@ -406,11 +411,9 @@ async def _write_raw_cache(run: _RequestRun, resp: SearchResponse, *, include_re
         run.timings["raw_response_cache_write"] = elapsed_ms(step_started)
         search_logger.info(
             "raw search response cache set",
-            extra={
-                "cache_key": run.raw_cache_key,
-                "returned_count": len(resp.results),
-                "ttl_seconds": raw_response_cache_ttl,
-            },
+            cache_key=run.raw_cache_key,
+            returned_count=len(resp.results),
+            ttl_seconds=raw_response_cache_ttl,
         )
     elif run.raw_cache_key is not None:
         # If the parsed-query cache supplied the result it did not carry the
@@ -426,14 +429,12 @@ def _log_llm_calls(counting_client: CountingLlmClient) -> None:
     )
     search_logger.info(
         "search llm calls",
-        extra={
-            "llm_calls_total": counting_client.total_calls,
-            "parser_calls": by_phase.get("parser", 0),
-            "rerank_calls": by_phase.get("rerank", 0),
-            "narrative_calls": by_phase.get("narrative", 0),
-            "fallback_model_calls": fallback_calls,
-            "calls_by_model": counting_client.calls_by_model,
-        },
+        llm_calls_total=counting_client.total_calls,
+        parser_calls=by_phase.get("parser", 0),
+        rerank_calls=by_phase.get("rerank", 0),
+        narrative_calls=by_phase.get("narrative", 0),
+        fallback_model_calls=fallback_calls,
+        calls_by_model=counting_client.calls_by_model,
     )
 
 

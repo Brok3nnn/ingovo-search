@@ -1,9 +1,9 @@
-"""Unit tests for §14e-2 `/api/search` shell.
+"""Unit tests for `/api/search` shell.
 
-Covers acceptance 1 (200 envelope shape, no account required) and 2
-(Set-Cookie on first call, session stickiness for refinement_overrides
-+ session_signals + prior_clarifications). The recommender pipeline
-itself is stubbed — its acceptance lands with §14e-3.
+Covers the 200 envelope shape (no account required), and the Set-Cookie on the
+first call with session stickiness for refinement_overrides + session_signals +
+prior_clarifications. The recommender pipeline itself is stubbed; its wiring is
+tested in `test_search_pipeline.py`.
 """
 
 from __future__ import annotations
@@ -14,6 +14,8 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from pydantic import ValidationError as PydanticValidationError
+from tests._fakes import fake_db_session
 
 from ingovo_search.api.cookies import SESSION_COOKIE_NAME
 from ingovo_search.api.deps import (
@@ -55,10 +57,6 @@ SECRET = b"x" * 32
 
 # FastAPI resolves an override's own signature, and these classes' constructors take parameters it
 # would turn into request parameters, so each override is a parameterless factory (fresh per request).
-def _fresh_async_mock() -> AsyncMock:
-    return AsyncMock()
-
-
 def _mock_llm_client() -> MockLlmClient:
     return MockLlmClient()
 
@@ -89,7 +87,7 @@ def app(session_store: SessionStore, session_cache: Cache) -> FastAPI:
     application.dependency_overrides[get_session_cookie_secure] = lambda: False
     application.dependency_overrides[get_llm_client] = _mock_llm_client
     application.dependency_overrides[get_embedding_client] = _mock_embedding_client
-    application.dependency_overrides[get_db_session] = _fresh_async_mock
+    application.dependency_overrides[get_db_session] = fake_db_session
     return application
 
 
@@ -114,9 +112,6 @@ def mock_pipeline():
             "recommend": mock_rec,
             "should_clarify": mock_clarify,
         }
-
-
-# --- Acceptance 1 ---------------------------------------------------------
 
 
 def test_search_returns_200_with_envelope_shape(client: TestClient) -> None:
@@ -194,7 +189,7 @@ def test_search_returns_422_for_invalid_signal_type(client: TestClient) -> None:
     assert response.status_code == 422
 
 
-# --- Acceptance 2: cookie issuance + session stickiness ------------------
+# --- cookie issuance + session stickiness ------------------
 
 
 def test_first_call_sets_session_cookie(client: TestClient) -> None:
@@ -273,7 +268,7 @@ async def test_session_state_accumulates_signals_and_clarifications(session_stor
 
 
 async def test_subsequent_call_appends_rather_than_replaces(session_store: SessionStore, app: FastAPI) -> None:
-    """Acceptance 2 — refinement/signals/clarifications accumulate, not overwrite."""
+    """Refinement/signals/clarifications accumulate, not overwrite."""
     with TestClient(app) as test_client:
         first = test_client.post(
             "/api/search",
@@ -321,7 +316,16 @@ def test_search_request_defaults_are_empty() -> None:
     assert payload.prior_clarifications == []
     assert payload.refinement_overrides is None
     assert payload.session_signals == []
-    assert payload.w_overrides == {}
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [{"query": "x" * 601}, {"rerank_candidate_count": 0}, {"rerank_candidate_count": 31}],
+    ids=["query-too-long", "rerank-count-zero", "rerank-count-above-30"],
+)
+def test_search_request_bounds_the_fields_that_size_model_calls(fields: dict[str, object]) -> None:
+    with pytest.raises(PydanticValidationError):
+        SearchRequest.model_validate({"query": "eladó lakás", **fields})
 
 
 def test_search_response_defaults_use_score_version() -> None:
@@ -329,10 +333,10 @@ def test_search_response_defaults_use_score_version() -> None:
     assert response.score_version == SCORE_VERSION
     assert response.pipeline_versions.score == SCORE_VERSION
     assert response.pipeline_versions.match_percent == "match-percent-v2-near-proximity"
-    assert response.pipeline_versions.canonical_ranking == "authoritative-order-v2"
-    # Bumped again when thin searches gained automatic nearest-city fallback:
-    # old cache entries must not replay the removed clarification prompt.
-    assert response.pipeline_versions.response_cache.startswith("response-v23-")
+    assert response.pipeline_versions.canonical_ranking == "authoritative-order-v3-running-minimum"
+    # Bumped again when the displayed percentages became a running minimum:
+    # old cache entries must not replay percentages above a listing's own score.
+    assert response.pipeline_versions.response_cache.startswith("response-v24-")
     assert response.results == []
     assert response.clarification is None
     assert response.total_candidates == 0

@@ -1,4 +1,4 @@
-"""Unit tests for §8 SQL hard-filter builder.
+"""Unit tests for the SQL hard-filter builder.
 
 `build_hard_filter_query` is pure — it returns a `TextClause` plus a params
 dict — so it is fully covered here without a database. `run_hard_filter`
@@ -25,17 +25,11 @@ def _sql(hard_filters: HardFilters) -> tuple[str, dict[str, object]]:
     return str(stmt), params
 
 
-# --- Acceptance 1 ------------------------------------------------------------
-
-
 def test_empty_hard_filters_returns_all_searchable_listings() -> None:
     sql, params = _sql(HardFilters())
     assert "SELECT id FROM properties WHERE status = 'active'" in sql
     assert "expires_at IS NULL OR expires_at > now()" in sql
     assert params == {}
-
-
-# --- Acceptance 2 ------------------------------------------------------------
 
 
 def test_price_huf_max_excludes_listings_above_threshold() -> None:

@@ -1,7 +1,7 @@
 [project]
 name = "ingovo-search"
 version = "1.0.0"
-description = "Natural-language property search: an LLM query parser, PostGIS hard filters, pgvector retrieval, an LLM rerank and an absolute match score."
+description = "Natural-language property search: an LLM query parser, PostGIS hard filters, pgvector retrieval, an LLM rerank and a per-listing match score."
 readme = "README.md"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE"]
@@ -30,8 +30,10 @@ dependencies = [
     "cohere>=5.11",
     "redis>=5.2",
     "structlog>=24.4",
-    # Optional second reranker (TypeSafe Jev); only called when TYPESAFE_API_KEY is set.
-    "typesafe-sdk==0.7.5",
+    # TypeSafe's Jev reranker: required at install, optional at runtime. It is only called
+    # when TYPESAFE_API_KEY is set and AI_SEARCH_RERANK_BACKEND selects it (jev, shadow or
+    # canary); httpx2 is the transport its client takes.
+    "typesafe-sdk>=0.7.5,<0.8",
     "httpx2>=2.0.0",
 ]
 

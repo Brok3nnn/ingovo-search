@@ -1,26 +1,26 @@
-"""§17.2.1 OSM Overpass address extractor.
+"""OSM Overpass address extractor.
 
 Pulls real building addresses across Hungary from the OSM Overpass API and
-writes them to `eval/synthetic/addresses.json` for the §17.2.4 assembler.
+writes them to `eval/synthetic/addresses.json` for the assembler.
 The output is opt-in: import the module to use the helpers, but the actual
 network fetch only runs when `fetch_all_addresses()` is invoked.
 
-Why not vendor a one-shot data file: OSM data drifts, and we want the
-generator script committed so any developer can regenerate the addresses
-with one `uv run` (especially when KSH publishes a new district boundary
-or smaller-town list changes).
+The output is committed (`addresses.json`), and so is this script: OSM data
+drifts, and any developer can regenerate the addresses with one `uv run`
+(especially when KSH publishes a new district boundary or smaller-town list
+changes).
 
 The script enforces a single global timeout + per-region retry. Overpass is
 rate-limited (~ 2 concurrent slots); the helpers serialise calls
 intentionally so we don't trigger 429s.
 
-Per the design spec (§17.2.1, §7.4):
+Coverage:
 - Budapest districts 1-23, weighted by population (KSH 2021 census).
 - 6 major regional cities: Pécs, Szeged, Debrecen, Miskolc, Győr, Sopron.
 - 200 addresses from `RURAL_TARGETS` smaller towns for rural coverage.
 
-Pure Python + httpx (already in §-1 dependency set). Tests stub the httpx
-client so they run without network access.
+Pure Python + httpx (already a dependency). Tests stub the httpx client so
+they run without network access.
 """
 
 from __future__ import annotations
@@ -302,7 +302,7 @@ def validate_address_file(*, path: Path = OUTPUT_PATH) -> tuple[bool, str]:
         return False, f"{path} must be a JSON array, got {type(raw).__name__}"
     if len(raw) < MIN_TOTAL_ADDRESSES:
         return False, f"only {len(raw)} addresses found, need ≥ {MIN_TOTAL_ADDRESSES}"
-    return True, f"{len(raw)} addresses ✓"
+    return True, f"{len(raw)} addresses, OK"
 
 
 async def main(argv: list[str] | None = None) -> int:

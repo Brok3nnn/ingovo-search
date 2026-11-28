@@ -1,1 +1,1 @@
-"""§17 evaluation harness — ranking-quality metrics and offline sweeps."""
+"""Evaluation harness — ranking-quality metrics and offline sweeps."""

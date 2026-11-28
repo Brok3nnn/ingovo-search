@@ -1,4 +1,4 @@
-"""R1 contract tests for geographic eligibility and canonical result ordering."""
+"""Contract tests for geographic eligibility and canonical result ordering."""
 
 from __future__ import annotations
 

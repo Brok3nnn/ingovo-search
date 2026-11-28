@@ -1,9 +1,9 @@
-"""§10 cold-start region hint — Tier-S LLM fallback for fuzzy region names.
+"""Cold-start region hint — Tier-S LLM fallback for fuzzy region names.
 
 Before a named region (e.g. "Budai-hegyvidék") has ~50 positive engagements,
 there is no learned centroid to score against. As a fallback the parser-tier
 LLM suggests likely formal districts as a weighted hint
-(`[{district, weight}, ...]` — the design spec §6.4 "Learned centroids").
+(`[{district, weight}, ...]`).
 The hint biases `geo_score`, never filters.
 
 The hint is generated once per new region and cached in

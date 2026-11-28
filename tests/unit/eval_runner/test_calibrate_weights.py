@@ -1,6 +1,6 @@
-"""Unit tests for `eval/calibrate_weights.py` (§17.2.6 grid-search calibrator).
+"""Unit tests for `eval/calibrate_weights.py` (grid-search calibrator).
 
-Pure-function tests — the §8 `recommend` integration + the SyntheticEvalRating
+Pure-function tests — the `recommend` integration + the SyntheticEvalRating
 loader are v1 work. The math here (grid expansion, per-query NDCG mapping,
 sort by descending avg) is locked behind these tests so the v1 wiring slots
 in cleanly.

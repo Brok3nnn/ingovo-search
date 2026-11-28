@@ -1,4 +1,4 @@
-"""Unit tests for the Phase 1 battery runner's pure pieces.
+"""Unit tests for the battery runner's pure pieces.
 
 Loaded via importlib like the other eval scripts, which are standalone files
 rather than an installed package.

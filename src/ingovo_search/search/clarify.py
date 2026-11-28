@@ -1,7 +1,7 @@
 """``POST /api/search/clarify``: the buyer's answer, then the pipeline again.
 
 Clarify never re-parses. The answer is appended to the session state, and the shared
-§6.4 pipeline (``pipeline.run_search_pipeline``) runs again on the parsed query the
+pipeline (``pipeline.run_search_pipeline``) runs again on the parsed query the
 previous ``/api/search`` call stored in the session.
 """
 

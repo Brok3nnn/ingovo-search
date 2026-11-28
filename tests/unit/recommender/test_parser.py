@@ -1,6 +1,6 @@
-"""Unit tests for the §7 query parser.
+"""Unit tests for the query parser.
 
-Covers acceptance criteria 1-5 from the design spec §7:
+Covers:
 1. Mock LLM returns the expected parser output for `hc01`; `parse_query`
    returns a validated `ParsedQuery` matching the fixture.
 2. Mock LLM returns malformed JSON twice → raises `ParseError`.
@@ -8,8 +8,8 @@ Covers acceptance criteria 1-5 from the design spec §7:
 4. Same query twice → second call is a cache hit, no LLM call.
 5. `EnrichmentLog` row written for both success and failure attempts.
 
-Acceptance 6 (the CI parser-eval gate) belongs to §17.1 / §18 and is not
-covered here — the eval runner does not exist yet.
+The live parser eval (`eval/run_parser_eval.py`) is not covered here: it needs
+a Gemini key.
 """
 
 from __future__ import annotations
@@ -99,7 +99,7 @@ def _enrichment_logs(session: AsyncSession) -> list[EnrichmentLog]:
     return [entity for entity in cast(_RecordingSession, session).added if isinstance(entity, EnrichmentLog)]
 
 
-# --- Acceptance test 1: valid parse ------------------------------------------
+# --- valid parse ------------------------------------------
 
 
 async def test_parse_query_returns_validated_parsed_query() -> None:
@@ -138,7 +138,7 @@ async def test_parse_query_extracts_soft_prefs_and_geo_hints() -> None:
     assert result.geo_hints.side_of_river == "Buda"
 
 
-# --- Acceptance test 2: persistent parse failure -----------------------------
+# --- persistent parse failure -----------------------------
 
 
 async def test_persistent_malformed_json_raises_parse_error() -> None:
@@ -158,7 +158,7 @@ async def test_persistent_malformed_json_raises_parse_error() -> None:
     assert [log.outcome for log in _enrichment_logs(session)] == ["parse_error", "parse_error"]
 
 
-# --- Acceptance test 3: correction retry recovers ----------------------------
+# --- correction retry recovers ----------------------------
 
 
 async def test_wrong_schema_then_valid_on_retry() -> None:
@@ -179,7 +179,7 @@ async def test_wrong_schema_then_valid_on_retry() -> None:
     assert [log.outcome for log in _enrichment_logs(session)] == ["parse_error", "success"]
 
 
-# --- Acceptance test 4: cache hit --------------------------------------------
+# --- cache hit --------------------------------------------
 
 
 async def test_same_query_twice_hits_cache() -> None:
@@ -369,7 +369,7 @@ async def test_expired_cache_entry_triggers_new_llm_call() -> None:
     assert client.calls == 2
 
 
-# --- Acceptance test 5: logging ----------------------------------------------
+# --- logging ----------------------------------------------
 
 
 async def test_enrichment_log_written_for_success_and_failure() -> None:
@@ -389,7 +389,7 @@ async def test_enrichment_log_written_for_success_and_failure() -> None:
     for log in logs:
         assert log.model_used == TIER_S_PARSER
         assert log.prompt_version == PARSER_PROMPT_VERSION
-        # M4 cost-tracker: estimated from text length, non-zero on success.
+        # cost-tracker: estimated from text length, non-zero on success.
         assert log.cost_usd >= 0.0
         assert log.latency_ms >= 0
 

@@ -1,6 +1,6 @@
-"""§14 step 3 — read + write the signed anonymous-session cookie.
+"""Read + write the signed anonymous-session cookie.
 
-Sits between Starlette `Request` / `Response` and the §14c
+Sits between Starlette `Request` / `Response` and the
 `sign_session_id` / `verify_signed_session_id` helpers. Two operations:
 
 - `read_session_id(request, *, secret)` — pulls the cookie, verifies the
@@ -13,7 +13,7 @@ Sits between Starlette `Request` / `Response` and the §14c
 `SESSION_COOKIE_NAME = "ingovo_sid"` is the agreed-upon name; routers
 + tests + frontend code all read it from this constant.
 
-The buyer-search router uses these together with the §14c `SessionStore`:
+The buyer-search router uses these together with the `SessionStore`:
 on the first request it sees a missing cookie, calls `store.create()`,
 and stamps the cookie via `set_session_cookie`; subsequent requests
 read the cookie, call `store.get(session_id)`, and operate on the
@@ -58,10 +58,9 @@ def set_session_cookie(
 
     `secure=True` is the default (production); dev/test pass
     `secure=False` so the cookie is sent over plain HTTP. The cookie
-    is `HttpOnly` and `SameSite=Lax`, matching the design spec §14
-    step 3. `Max-Age = SESSION_TTL_SECONDS` aligns with the §14c
-    store's rolling TTL — the browser drops the cookie once the
-    server-side state has expired.
+    is `HttpOnly` and `SameSite=Lax`. `Max-Age = SESSION_TTL_SECONDS`
+    aligns with the session store's rolling TTL — the browser drops the
+    cookie once the server-side state has expired.
     """
     response.set_cookie(
         SESSION_COOKIE_NAME,
@@ -75,7 +74,7 @@ def set_session_cookie(
 
 
 def clear_session_cookie(response: Response, *, secure: bool = True) -> None:
-    """Used by the "start fresh" route in §14e to drop the cookie."""
+    """Used by the "start fresh" route to drop the cookie."""
     response.delete_cookie(
         SESSION_COOKIE_NAME,
         path="/",

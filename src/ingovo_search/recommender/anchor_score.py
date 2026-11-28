@@ -1,9 +1,9 @@
-"""§8 anchor scoring — Gaussian distance from a "körül" / "kb." target.
+"""Anchor scoring — Gaussian distance from a "körül" / "kb." target.
 
 `anchor_score` is the per-field Gaussian used to score listings against query
 `anchors` (the soft "around X" bucket of the parser output). Field-specific
-sigmas come from the design spec §8 step 4: price uses a 15% relative band
-(sigma scales with the anchor), area and rooms use absolute bands.
+sigmas: price uses a 15% relative band (sigma scales with the anchor), area
+and rooms use absolute bands.
 """
 
 from __future__ import annotations

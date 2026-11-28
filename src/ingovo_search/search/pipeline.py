@@ -1,4 +1,4 @@
-"""The §6.4 search pipeline, one stage per function.
+"""The search pipeline, one stage per function.
 
 Shared between ``POST /api/search`` and ``POST /api/search/clarify`` so both endpoints
 route through identical scoring, caching and guardrails. The only difference is where
@@ -52,7 +52,7 @@ from ingovo_search.search.scoring import attach_hero_narratives, build_scored_ca
 
 
 def _track_search_run(run: SearchRun, resp: SearchResponse, *, cache_hit: bool) -> None:
-    """Log the §16 `search_run` product event.
+    """Log the `search_run` product event.
 
     Deliberately property-only, never the query text: the sentence a user types
     can name a street, a workplace or a school run, so it is personal data the
@@ -134,7 +134,7 @@ def _begin(
         state=state,
         parsed=parsed,
         # Snapshot the parsed query BEFORE relaxation may overwrite its filters,
-        # so M3 `revert_relaxation` chips can restore the original constraints.
+        # so `revert_relaxation` chips can restore the original constraints.
         original_parsed=parsed,
         parsed_hash=parsed_hash,
         cache_key=response_cache_key(parsed_hash, options),
@@ -151,19 +151,18 @@ async def _serve_cache_hit(run: SearchRun, cached: SearchResponse) -> None:
     timings["total"] = run.timer.record("total", run.timer.started)
     search_logger.info(
         "search response cache hit",
-        extra={"cache_key": run.cache_key, "returned_count": len(cached.results)},
+        cache_key=run.cache_key,
+        returned_count=len(cached.results),
     )
     search_logger.info(
         "search pipeline timing",
-        extra={
-            "timings_ms": timings,
-            "cache_hit": True,
-            "returned_count": len(cached.results),
-            "total_candidates": cached.total_candidates,
-            "include_narratives": run.options.include_narratives,
-            "include_rerank": run.options.include_rerank,
-            "relaxed": cached.relaxed,
-        },
+        timings_ms=timings,
+        cache_hit=True,
+        returned_count=len(cached.results),
+        total_candidates=cached.total_candidates,
+        include_narratives=run.options.include_narratives,
+        include_rerank=run.options.include_rerank,
+        relaxed=cached.relaxed,
     )
     await _write_search_log(
         run,
@@ -192,9 +191,10 @@ async def _read_response_cache(run: SearchRun) -> SearchResponse | None:
         await discard_stale_response_cache_entry(run.deps.cache, run.cache_key)
         search_logger.warning(
             "search response cache rejected by current public visibility",
-            extra={"cache_key": run.cache_key, "returned_count": len(cached.results)},
+            cache_key=run.cache_key,
+            returned_count=len(cached.results),
         )
-    search_logger.info("search response cache miss", extra={"cache_key": run.cache_key})
+    search_logger.info("search response cache miss", cache_key=run.cache_key)
     return None
 
 
@@ -298,17 +298,15 @@ async def _finish(run: SearchRun, resp: SearchResponse, rerank: RerankStage) -> 
     timings["total"] = run.timer.record("total", run.timer.started)
     search_logger.info(
         "search pipeline timing",
-        extra={
-            "timings_ms": timings,
-            "cache_hit": False,
-            "returned_count": len(results),
-            "total_candidates": len(run.scored),
-            "include_narratives": run.options.include_narratives,
-            "include_rerank": run.options.include_rerank,
-            "rerank_backend": run.options.rerank_backend,
-            "relaxed": bool(run.relaxation_path),
-            "relaxation_steps": len(run.relaxation_path),
-        },
+        timings_ms=timings,
+        cache_hit=False,
+        returned_count=len(results),
+        total_candidates=len(run.scored),
+        include_narratives=run.options.include_narratives,
+        include_rerank=run.options.include_rerank,
+        rerank_backend=run.options.rerank_backend,
+        relaxed=bool(run.relaxation_path),
+        relaxation_steps=len(run.relaxation_path),
     )
     await _write_search_log(
         run, results=results, total_candidates=len(run.scored), cache_hit=False, rerank_outcome=rerank.outcome
@@ -332,7 +330,7 @@ async def run_search_pipeline(
     progress: SearchProgress | None = None,
     timer: SearchTimer | None = None,
 ) -> SearchResponse:
-    """Apply session state to the parsed query, run the §6.4 pipeline, return the response."""
+    """Apply session state to the parsed query, run the pipeline, return the response."""
     run = _begin(search_input, deps, options, progress or SearchProgress(), timer or SearchTimer.start())
     with record_latency_ms() as elapsed:
         run.elapsed = elapsed

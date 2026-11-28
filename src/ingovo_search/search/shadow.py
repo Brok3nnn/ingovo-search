@@ -2,7 +2,7 @@
 
 ``shadow`` mode serves Gemini and runs the Jev rerank on the same head in the
 background; the response never waits for it. One ``rerank_shadow_comparison`` row per
-sampled search records both orders for ``eval/jev_shadow_report.py``.
+sampled search records both orders for a later comparison.
 """
 
 from __future__ import annotations
@@ -190,11 +190,9 @@ async def record_rerank_shadow(jev_client: JevClient, sample: ShadowSample, *, t
         # with its traceback and the query hash so it shows up in the log.
         search_logger.warning(
             "rerank shadow failed; comparison row not written",
-            extra={
-                "error": f"{type(exc).__name__}: {exc}"[:300],
-                "query_hash": sample.query_hash,
-                "candidate_count": len(sample.candidates),
-                "served_backend": sample.served_backend,
-            },
+            error=f"{type(exc).__name__}: {exc}"[:300],
+            query_hash=sample.query_hash,
+            candidate_count=len(sample.candidates),
+            served_backend=sample.served_backend,
             exc_info=exc,
         )

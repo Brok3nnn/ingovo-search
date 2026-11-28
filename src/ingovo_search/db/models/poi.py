@@ -1,7 +1,7 @@
 """Poi — points of interest for proximity scoring (schools, transit, shops...).
 
-Loaded from OSM Overpass extracts (`ingestion/poi_osm.py` + `scripts/load_pois.py`).
-The §12 nightly job (`jobs/nightly_poi_distances.py`) computes per-listing
+Loaded by the seed command from the OpenStreetMap extract in `data/` (made with
+`scripts/extract_osm_pois.py`). `ingestion/poi_distances.py` computes per-listing
 nearest-POI distances per category into `properties.features["poi_m"]`, which
 the recommender reads for "iskola legyen a közelben"-style soft preferences.
 """

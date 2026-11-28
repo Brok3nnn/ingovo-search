@@ -1003,7 +1003,7 @@ requires-dist = [
     { name = "redis", specifier = ">=5.2" },
     { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0" },
     { name = "structlog", specifier = ">=24.4" },
-    { name = "typesafe-sdk", specifier = "==0.7.5" },
+    { name = "typesafe-sdk", specifier = ">=0.7.5,<0.8" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.32" },
 ]
 

@@ -13,6 +13,7 @@ import pytest
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
+from tests._fakes import fake_db_session
 
 from ingovo_search.api.cookies import SESSION_COOKIE_NAME
 from ingovo_search.api.deps import (
@@ -43,10 +44,6 @@ JPEG_BYTES = b"\xff\xd8\xff\xe0" + b"stream image" * 4
 
 # FastAPI resolves an override's own signature, and these classes' constructors take parameters it
 # would turn into request parameters, so each override is a parameterless factory (fresh per request).
-def _fresh_async_mock() -> AsyncMock:
-    return AsyncMock()
-
-
 def _mock_llm_client() -> MockLlmClient:
     return MockLlmClient()
 
@@ -71,7 +68,7 @@ def app(session_cache: Cache) -> FastAPI:
     application.dependency_overrides[get_session_cookie_secure] = lambda: False
     application.dependency_overrides[get_llm_client] = _mock_llm_client
     application.dependency_overrides[get_embedding_client] = _mock_embedding_client
-    application.dependency_overrides[get_db_session] = _fresh_async_mock
+    application.dependency_overrides[get_db_session] = fake_db_session
     return application
 
 

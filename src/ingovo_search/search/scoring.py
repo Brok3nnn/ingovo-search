@@ -277,7 +277,7 @@ def build_scored_candidates(
         distance_km = match.distance_km
         if result_scope is ResultScope.OUT_OF_SCOPE:
             if not match_query.allow_distant_location_expansion:
-                # R11.7 — alert on a remote settlement reaching public scoring
+                # Alert on a remote settlement reaching public scoring
                 # without an explicit distance expansion. Greppable event name
                 # for a monitoring rule (`event="alert.remote_settlement_included"`).
                 search_logger.error(
@@ -382,7 +382,7 @@ async def attach_hero_narratives(  # noqa: PLR0913 -- the scored rows, the query
     cache: Cache,
     locale: str = DEFAULT_NARRATOR_LOCALE,
 ) -> list[ScoredCandidate]:
-    """Generate §17.3 AI narratives for the top hero rows; merge in-place.
+    """Generate AI narratives for the top hero rows; merge in-place.
 
     The narratives land on the first `HERO_NARRATIVE_COUNT` candidates so the
     buyer UI can explain the entire top-10 recommendation set. They run

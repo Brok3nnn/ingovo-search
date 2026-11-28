@@ -1,4 +1,4 @@
-"""Unit tests for M4 RateLimitMiddleware path-scope + key-isolation behavior."""
+"""Unit tests for RateLimitMiddleware path-scope + key-isolation behavior."""
 
 from __future__ import annotations
 

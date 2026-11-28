@@ -9,10 +9,10 @@ import structlog
 from ingovo_search.recommender.score import ScoredCandidate
 from ingovo_search.types.errors import RankingGuardrailViolation
 
-CANONICAL_RANKING_VERSION = "authoritative-order-v2"
+CANONICAL_RANKING_VERSION = "authoritative-order-v3-running-minimum"
 
-# R11.6 — a single, greppable event name so a monitoring rule can alert on any
-# public ordering-invariant breach (`event="alert.order_invariant_violation"`).
+# A single, greppable event name so a monitoring rule can alert on any public
+# ordering-invariant breach (`event="alert.order_invariant_violation"`).
 _logger = structlog.get_logger(__name__)
 
 
@@ -21,19 +21,19 @@ class MatchOrderError(RankingGuardrailViolation):
 
 
 def canonical_rank(candidates: Sequence[ScoredCandidate]) -> list[ScoredCandidate]:
-    """Keep candidate IDs in ranker order and align percentages to those ranks.
+    """Keep candidate IDs in ranker order and make the displayed percentages non-increasing.
 
-    The absolute match calculator provides the percentage value distribution.
-    Sorting only those values — never the candidates — guarantees that the
-    original ranker order remains authoritative while displayed percentages are
-    monotonically non-increasing along it.
+    Each candidate arrives with its own absolute match percentage. The displayed
+    value is the running minimum down the ranker's order: a listing never shows
+    more than its own percentage, and shows less only when a listing ranked above
+    it scored lower. The candidates themselves are never reordered.
     """
 
-    aligned_percentages = sorted((candidate.match_percent for candidate in candidates), reverse=True)
-    ranked = [
-        candidate.model_copy(update={"rank": index, "match_percent": aligned_percentages[index - 1]})
-        for index, candidate in enumerate(candidates, start=1)
-    ]
+    ranked: list[ScoredCandidate] = []
+    ceiling = 100
+    for index, candidate in enumerate(candidates, start=1):
+        ceiling = min(ceiling, candidate.match_percent)
+        ranked.append(candidate.model_copy(update={"rank": index, "match_percent": ceiling}))
     assert_match_order(ranked)
     return ranked
 

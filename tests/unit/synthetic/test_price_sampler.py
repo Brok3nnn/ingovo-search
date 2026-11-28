@@ -1,4 +1,4 @@
-"""Unit tests for §17.2.2 KSH price-distribution sampler.
+"""Unit tests for the KSH price-distribution sampler.
 
 Acceptance per spec: "Generated 1000 prices for Budapest district 12 panel
 apartments fall within KSH range." We verify the realised distribution
@@ -99,7 +99,7 @@ def test_sample_price_huf_clips_to_outlier_envelope() -> None:
 
 
 def test_acceptance_1000_samples_budapest_12_panel_match_ksh_band() -> None:
-    """§17.2.2 acceptance: 1 000 BP-12 panel samples land near the KSH median."""
+    """Acceptance: 1 000 BP-12 panel samples land near the KSH median."""
     rng = random.Random(SEED)
     samples = [
         sample_price_huf(city="Budapest", district="12", area_m2=60.0, property_type="panel", rng=rng)

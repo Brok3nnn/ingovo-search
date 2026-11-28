@@ -1,4 +1,4 @@
-"""Absolute, set-independent buyer-query match percentage (R4)."""
+"""Absolute, set-independent buyer-query match percentage."""
 
 from __future__ import annotations
 

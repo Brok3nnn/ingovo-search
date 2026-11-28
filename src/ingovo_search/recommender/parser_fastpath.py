@@ -1,4 +1,4 @@
-"""§7 deterministic parser fast path — rule-based parsing for simple queries.
+"""Deterministic parser fast path — rule-based parsing for simple queries.
 
 `deterministic_parse` turns a short, fully-explicit Hungarian property query
 ("eladó lakás Budapest 50 millió alatt") into a `ParsedQuery` with **no LLM

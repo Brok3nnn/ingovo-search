@@ -1,4 +1,4 @@
-"""Unit tests for §17.2.4 assembler + distribution validator."""
+"""Unit tests for the synthetic dataset assembler and its distribution validator."""
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ import json
 import random
 from collections import Counter
 from pathlib import Path
-from typing import cast
 
 import pytest
 from eval.synthetic.assemble import (
@@ -23,11 +22,13 @@ from eval.synthetic.assemble import (
     sample_area_m2,
     sample_property_type,
     sample_rooms,
+    street_level,
 )
 from eval.synthetic.describe import (
     BAD_CASE_FRACTION,
     NULL_FIELD_FRACTION,
     TIER_PROBABILITIES,
+    build_type_label,
 )
 from eval.synthetic.extract_osm import Address
 from eval.synthetic.validate_distribution import (
@@ -38,15 +39,8 @@ from eval.synthetic.validate_distribution import (
 )
 
 from ingovo_search.ingestion.types import NormalizedListing
-from ingovo_search.lib.llm import LlmClient, LlmRequest
 
 SEED = 99
-
-
-class _NoopLlmClient:
-    async def complete(self, req: LlmRequest) -> str:
-        _ = req
-        return "GREAT_HU_STUB"
 
 
 # ---------------------------------------------------------------------------
@@ -136,12 +130,11 @@ def _addresses_for_required_cities() -> list[Address]:
     )
 
 
-async def test_assemble_dataset_produces_one_listing_per_target_address() -> None:
+def test_assemble_dataset_produces_one_listing_per_target_address() -> None:
     addresses = _addresses_for_required_cities()
-    listings = await assemble_dataset(
+    listings = assemble_dataset(
         addresses=addresses,
         target_count=50,
-        client=cast(LlmClient, _NoopLlmClient()),
         rng=random.Random(SEED),
     )
     assert len(listings) == 50
@@ -150,12 +143,11 @@ async def test_assemble_dataset_produces_one_listing_per_target_address() -> Non
     assert all(row.source_fingerprint.startswith("sha256:") for row in listings)
 
 
-async def test_assemble_dataset_rows_match_normalized_listing_contract() -> None:
+def test_assemble_dataset_rows_match_normalized_listing_contract() -> None:
     addresses = _addresses_for_required_cities()
-    listings = await assemble_dataset(
+    listings = assemble_dataset(
         addresses=addresses,
         target_count=25,
-        client=cast(LlmClient, _NoopLlmClient()),
         rng=random.Random(SEED),
     )
 
@@ -170,22 +162,20 @@ async def test_assemble_dataset_rows_match_normalized_listing_contract() -> None
         assert validated.raw_payload["source"] == "synthetic"
 
 
-async def test_assemble_dataset_oversamples_when_address_pool_too_small() -> None:
+def test_assemble_dataset_oversamples_when_address_pool_too_small() -> None:
     addresses = [Address(city="Budapest", district="13", street="X u. 1", lat=47.5, lng=19.08)]
-    listings = await assemble_dataset(
+    listings = assemble_dataset(
         addresses=addresses,
         target_count=200,
-        client=cast(LlmClient, _NoopLlmClient()),
         rng=random.Random(SEED),
     )
     assert len(listings) == 200
 
 
-async def test_assemble_dataset_zero_target_returns_empty() -> None:
-    listings = await assemble_dataset(
+def test_assemble_dataset_zero_target_returns_empty() -> None:
+    listings = assemble_dataset(
         addresses=_addresses_for_required_cities(),
         target_count=0,
-        client=cast(LlmClient, _NoopLlmClient()),
         rng=random.Random(SEED),
     )
     assert listings == []
@@ -282,13 +272,12 @@ def test_load_listings_rejects_non_array(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-async def test_assembled_dataset_passes_validation() -> None:
-    """Full pipeline at TARGET_COUNT_LOWER must satisfy the §17.2.4 acceptance bar."""
+def test_assembled_dataset_passes_validation() -> None:
+    """The full pipeline at TARGET_COUNT_LOWER must satisfy the validator's acceptance bar."""
     addresses = _addresses_for_required_cities()
-    listings = await assemble_dataset(
+    listings = assemble_dataset(
         addresses=addresses,
         target_count=TARGET_COUNT_LOWER,
-        client=cast(LlmClient, _NoopLlmClient()),
         rng=random.Random(SEED),
     )
     rows = [row.to_dict() for row in listings]
@@ -302,15 +291,14 @@ async def test_assembled_dataset_passes_validation() -> None:
         assert realised_cities[required] >= 1
 
 
-async def test_emitted_property_type_is_canonical_and_build_type_preserved() -> None:
+def test_emitted_property_type_is_canonical_and_build_type_preserved() -> None:
     """The KSH building-type slug must never leak into `property_type` — the
     filter/parser stack only knows the canonical labels (2026-07-04 catch:
     1,800 corpus rows were unmatchable by property_type_in=["Lakás"])."""
 
-    listings = await assemble_dataset(
+    listings = assemble_dataset(
         addresses=_addresses_for_required_cities(),
         target_count=40,
-        client=cast(LlmClient, _NoopLlmClient()),
         rng=random.Random(SEED),
     )
 
@@ -320,3 +308,23 @@ async def test_emitted_property_type_is_canonical_and_build_type_preserved() -> 
         build_type = row.features.get("build_type")
         assert build_type in CANONICAL_PROPERTY_TYPE, build_type
         assert CANONICAL_PROPERTY_TYPE[build_type] == row.property_type
+
+
+def test_street_level_drops_the_house_number_only() -> None:
+    assert street_level("Visegrádi utca 86/a") == "Visegrádi utca"
+    assert street_level("Rákóczi út 70-72") == "Rákóczi út"
+    assert street_level("Augusztus 20. utca 12") == "Augusztus 20. utca"
+    assert street_level("48-as tér 1") == "48-as tér"
+    assert street_level("Fő utca") == "Fő utca"
+
+
+def test_assembled_rows_name_a_street_and_an_accented_building_type() -> None:
+    listings = assemble_dataset(
+        addresses=[Address(city="Budapest", district="13", street="Lehel utca 12/B", lat=47.51, lng=19.07)],
+        target_count=30,
+        rng=random.Random(SEED),
+    )
+    for row in listings:
+        assert row.address == "Lehel utca"
+        assert build_type_label(row.features["build_type"]) in row.title
+        assert "_" not in row.title

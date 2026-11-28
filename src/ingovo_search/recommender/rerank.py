@@ -1,15 +1,15 @@
-"""§11 LLM rerank — Tier-L reorder of the top-30 + HU rationale generation.
+"""LLM rerank — Tier-L reorder of the top-30 + HU rationale generation.
 
-`rerank_and_explain` takes the §8 top-30 candidates plus user / session context
-and either returns the §6.4 fast-path top-10 (when there is no semantic query
+`rerank_and_explain` takes the head of the scored list plus user / session context
+and either returns the fast-path top-10 (when there is no semantic query
 to rerank), or calls the Tier-L LLM, validates the structured response, caches
 the result, and surfaces a `low_match` flag when too many returned items are
 flagged low-confidence.
 
-Two patterns mirror §7 deliberately: a cache behind a `RerankCache` Protocol,
-and one correction retry on schema-validation failure with one `EnrichmentLog`
-row per LLM attempt. Production uses `CacheRerankCache` over the shared §13
-Redis-backed cache; tests can still use `InMemoryRerankCache`.
+Two patterns mirror the parser deliberately: a cache behind a `RerankCache`
+Protocol, and one correction retry on schema-validation failure with one
+`EnrichmentLog` row per LLM attempt. The service uses `CacheRerankCache` over the
+shared Redis-backed cache; tests can still use `InMemoryRerankCache`.
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ DEFAULT_CACHE_TTL_SECONDS = 60 * 60
 RERANK_TOP_N = 10
 _logger = structlog.get_logger("ingovo_search.recommender.rerank")
 # `RerankResult.low_match` flips when this many of the returned top items
-# carry `low_confidence=True` (§11 step 2).
+# carry `low_confidence=True`.
 LOW_MATCH_THRESHOLD = 7
 
 
@@ -78,7 +78,7 @@ class RerankResponse(BaseModel):
 
 
 class RerankRankOnlyItem(BaseModel):
-    """One reranked slot in §11 Phase 5 rank-only mode — order only, no rationale."""
+    """One reranked slot in rank-only mode — order only, no rationale."""
 
     model_config = {"frozen": True}
 
@@ -150,7 +150,7 @@ class InMemoryRerankCache:
 
 
 class CacheRerankCache:
-    """`RerankCache` adapter backed by the shared async §13 cache."""
+    """`RerankCache` adapter backed by the shared async cache."""
 
     def __init__(self, cache: Cache, *, ttl_seconds: int = DEFAULT_CACHE_TTL_SECONDS) -> None:
         self._cache = cache
@@ -223,7 +223,7 @@ def _has_semantic_query(query: ParsedQuery) -> bool:
 
 
 def _fast_path_result(candidates: Sequence[RerankCandidate]) -> RerankResult:
-    """§11 step 4 fast path: preserve every candidate, no LLM call."""
+    """Fast path: preserve every candidate, no LLM call."""
     items = [RerankItem(listing_id=candidate.listing_id, rank=index + 1) for index, candidate in enumerate(candidates)]
     return RerankResult(items=items, low_match=False, fast_path=True)
 
@@ -379,9 +379,9 @@ async def _cached_rerank(
 ) -> RerankResult | None:
     cached = await cache.get(key)
     if cached is None:
-        _logger.info("rerank cache miss", extra={"cache_key": key, "candidate_count": len(candidates)})
+        _logger.info("rerank cache miss", cache_key=key, candidate_count=len(candidates))
         return None
-    _logger.info("rerank cache hit", extra={"cache_key": key, "candidate_count": len(candidates)})
+    _logger.info("rerank cache hit", cache_key=key, candidate_count=len(candidates))
     items, _, _ = _normalise_items(cached.items, candidates, top_n=top_n)
     return cached.model_copy(update={"items": items})
 
@@ -392,7 +392,7 @@ def _result_from_items(
     """The model's order, with the ids it mangled dropped, and the low-match flag."""
     # The LLM occasionally echoes a mangled listing id (a dropped or transposed
     # UUID character) — an id we never sent as a candidate. Such an id must not
-    # reach the §14a hard-filter guardrail in the search pipeline: that guardrail
+    # reach the hard-filter guardrail in the search pipeline: that guardrail
     # is a safety net for genuine ranking bugs, not LLM typos, and tripping it
     # would 500 the whole search. Drop unknown ids here and keep the valid order;
     # any candidate the LLM thereby omits falls back to its deterministic slot.
@@ -400,11 +400,9 @@ def _result_from_items(
     if unknown_count or duplicate_count:
         _logger.warning(
             "rerank normalised invalid listing ids",
-            extra={
-                "unknown_count": unknown_count,
-                "duplicate_count": duplicate_count,
-                "candidate_count": len(candidates),
-            },
+            unknown_count=unknown_count,
+            duplicate_count=duplicate_count,
+            candidate_count=len(candidates),
         )
     low_confidence_count = sum(1 for item in top_items if item.low_confidence)
     return RerankResult(items=top_items, low_match=low_confidence_count >= LOW_MATCH_THRESHOLD, fast_path=False)
@@ -419,12 +417,12 @@ async def rerank_and_explain(
     """Rerank the top-30 by Tier-L LLM, attach HU rationales, surface low-confidence.
 
     Returns the fast-path result without an LLM call when `query.semantic_query`
-    is empty (§6.4 "filter-only fast path"). Otherwise: cache lookup → LLM call
+    is empty ("filter-only fast path"). Otherwise: cache lookup → LLM call
     (one correction retry on schema failure, one `EnrichmentLog` row per attempt)
     → flip `low_match=True` when ≥ `LOW_MATCH_THRESHOLD` of the top items carry
     `low_confidence=True` → cache write → return.
 
-    With `options.rank_only` (§11 Phase 5) the LLM returns only the order — rank +
+    With `options.rank_only` the LLM returns only the order — rank +
     low_confidence, no per-item rationale — which cuts the rerank output-token
     count and latency. The ranking signal is unchanged; the returned
     `RerankItem`s simply carry an empty `rationale_hu`. A dedicated prompt
@@ -454,12 +452,13 @@ async def rerank_and_explain(
         if not answer.transport_error:
             _logger.warning(
                 "rerank schema validation failed; using deterministic fallback",
-                extra={"candidate_count": len(candidate_ids), "error": str(answer.last_error)},
+                candidate_count=len(candidate_ids),
+                error=str(answer.last_error),
             )
         return _fallback_result(candidates)
 
     result = _result_from_items(answer.items, candidates, top_n=options.top_n)
     if cache is not None:
         await cache.set(key, result)
-        _logger.info("rerank cache set", extra={"cache_key": key, "candidate_count": len(candidate_ids)})
+        _logger.info("rerank cache set", cache_key=key, candidate_count=len(candidate_ids))
     return result

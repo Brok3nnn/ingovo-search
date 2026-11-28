@@ -1,10 +1,10 @@
-"""Integration tests for §8 recommender scoring — DB-backed acceptance tests.
+"""Integration tests for the recommender scoring — DB-backed acceptance tests.
 
 Requires Postgres + pgvector + postgis. Run via:
     uv run pytest -m integration
 
-Covers §8 acceptance 1 (empty filter returns all searchable), 2 (price hard
-filter excludes), and 8 (1K-candidate scale + EXPLAIN), plus an end-to-end
+Covers the empty filter (returns every searchable listing), the price hard
+filter, the 1K-candidate scale run with its EXPLAIN check, and an end-to-end
 `recommend` smoke that the full pipeline returns a `ScoreBreakdown`.
 """
 
@@ -87,9 +87,6 @@ async def _insert_property(
     return pid
 
 
-# --- Acceptance 1 ------------------------------------------------------------
-
-
 async def test_empty_hard_filter_returns_all_searchable_listings(session: AsyncSession) -> None:
     searchable = [await _insert_property(session, status="active") for _ in range(3)]
     inactive = await _insert_property(session, status="draft")  # not eligible -> excluded
@@ -97,9 +94,6 @@ async def test_empty_hard_filter_returns_all_searchable_listings(session: AsyncS
     ids = await run_hard_filter(session, HardFilters())
     assert set(searchable).issubset(set(ids))
     assert inactive not in ids
-
-
-# --- Acceptance 2 ------------------------------------------------------------
 
 
 async def test_price_huf_max_excludes_listings_above_threshold(session: AsyncSession) -> None:
@@ -114,11 +108,11 @@ async def test_price_huf_max_excludes_listings_above_threshold(session: AsyncSes
     ids = await run_hard_filter(session, HardFilters(price_huf_max=50_000_000))
     assert cheap in ids
     assert pricey not in ids
-    # Numeric filter excludes NULL prices per the §8 missing-data policy.
+    # Numeric filter excludes NULL prices per the missing-data policy.
     assert no_price not in ids
 
 
-# --- R3 verified nearby candidate pool --------------------------------------
+# --- verified nearby candidate pool --------------------------------------
 
 
 def _budapest_nearby_city_scope() -> list[str]:
@@ -183,11 +177,8 @@ async def test_recommend_returns_score_breakdowns(session: AsyncSession) -> None
         assert breakdown.total >= 0.0
 
 
-# --- Acceptance 8 (scale) ---------------------------------------------------
-
-
 async def test_recommend_1000_candidates_under_5_seconds(session: AsyncSession) -> None:
-    """§8 acceptance 8: scoring 1K candidates under 5 s on the dev DB.
+    """Scoring 1K candidates under 5 s on the dev DB.
 
     The per-candidate path runs sequential geo + pooled-signal lookups (v0
     N+1); v1 will batch them. This test is the wall-clock budget guard.
@@ -218,7 +209,7 @@ async def test_recommend_1000_candidates_under_5_seconds(session: AsyncSession) 
 
 
 async def test_factual_embedding_index_used_in_candidate_retrieval(session: AsyncSession) -> None:
-    """§8 acceptance 8 EXPLAIN clause: candidate retrieval uses the HNSW index."""
+    """Candidate retrieval uses the HNSW index."""
     index_exists = await session.scalar(
         text(
             "SELECT EXISTS ("

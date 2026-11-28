@@ -1,8 +1,7 @@
-"""§7 parser output schema — `ParsedQuery`.
+"""Parser output schema — `ParsedQuery`.
 
-Single source of truth for the Hungarian-NL → JSON query parser output. The
-shape mirrors the design spec §6.4 "Parser output schema" exactly. Both
-`parser.py` and the §17.1 eval runner import `ParsedQuery` from here so they
+Single source of truth for the Hungarian-NL → JSON query parser output. Both
+`parser.py` and the eval runner import `ParsedQuery` from here so they
 validate against identical types.
 
 The parser splits a query into three buckets by linguistic cue:
@@ -30,7 +29,7 @@ type PropertyType = Literal[
     "Lakás", "Ház", "Iroda", "Üzlethelyiség", "Telek", "Garázs", "Ipari", "Nyaraló", "Vendéglátás", "Mezőgazdasági"
 ]
 
-# Locked v0 soft-preference vocabulary — see the design spec Appendix A.
+# Locked v0 soft-preference vocabulary; `softpref_rules.py` has one rule per tag.
 # Tags outside this set go into `ParsedQuery.soft_prefs_freetext` verbatim.
 type SoftPrefTag = Literal[
     "renovated",
@@ -155,7 +154,7 @@ class GeoHints(BaseModel):
     balaton_shore: BalatonShore | None = None
 
 
-# POI proximity vocabulary. The first ten mirror `ingestion.poi_osm.POI_CATEGORIES`
+# POI proximity vocabulary. The first ten mirror `POI_CATEGORIES` in `scripts/extract_osm_pois.py`
 # (the `poi` table's category values); "transit" is a parser-level aggregate the
 # scorer resolves as min(metro, tram, bus) — users say "tömegközlekedés" far more
 # often than a specific mode.

@@ -1,10 +1,10 @@
-"""Integration tests for §9 pooled-signal kNN — requires Postgres + pgvector.
+"""Integration tests for the pooled-signal kNN — requires Postgres + pgvector.
 
 Run via:
     uv run pytest -m integration
 
-These cover §9 acceptance tests 1-6, all of which need a real database: they
-insert `interactions` rows and assert on the SQL aggregation result.
+These need a real database: they insert `interactions` rows and assert on the
+SQL aggregation result.
 """
 
 from __future__ import annotations
@@ -80,15 +80,9 @@ async def _insert_interaction(
     await sess.flush()
 
 
-# --- Acceptance 1 ------------------------------------------------------------
-
-
 async def test_no_matching_interactions_returns_zero(session: AsyncSession) -> None:
     pid = await _insert_property(session)
     assert await pooled_signal(session, pid, QUERY_VEC) == 0.0
-
-
-# --- Acceptance 2 ------------------------------------------------------------
 
 
 async def test_five_thumb_up_similar_queries_returns_positive(session: AsyncSession) -> None:
@@ -102,9 +96,6 @@ async def test_five_thumb_up_similar_queries_returns_positive(session: AsyncSess
     assert abs(result - 1.0) < 1e-6
 
 
-# --- Acceptance 3 ------------------------------------------------------------
-
-
 async def test_five_thumb_down_returns_negative(session: AsyncSession) -> None:
     pid = await _insert_property(session)
     for _ in range(5):
@@ -113,9 +104,6 @@ async def test_five_thumb_down_returns_negative(session: AsyncSession) -> None:
     result = await pooled_signal(session, pid, QUERY_VEC)
     assert result < 0.0
     assert abs(result - (-1.0)) < 1e-6
-
-
-# --- Acceptance 4 ------------------------------------------------------------
 
 
 async def test_interaction_older_than_window_is_excluded(session: AsyncSession) -> None:
@@ -131,17 +119,11 @@ async def test_interaction_older_than_window_is_excluded(session: AsyncSession) 
     assert await pooled_signal(session, pid, QUERY_VEC) == 0.0
 
 
-# --- Acceptance 5 ------------------------------------------------------------
-
-
 async def test_dissimilar_query_interaction_is_excluded(session: AsyncSession) -> None:
     pid = await _insert_property(session)
     await _insert_interaction(session, pid, "thumb_up", DISSIMILAR_VEC)
     # Cosine similarity 0.0 < 0.85 threshold → excluded.
     assert await pooled_signal(session, pid, QUERY_VEC) == 0.0
-
-
-# --- Acceptance 6 (scale) ----------------------------------------------------
 
 
 async def test_pooled_signal_scale_10k_rows(session: AsyncSession) -> None:

@@ -2,9 +2,9 @@
 
 The parser, recommender, clarification policy and reranker are replaced by deterministic
 doubles (``_search_harness``), so what the snapshot pins is the work of
-``_run_search_pipeline`` and ``execute_search_request`` themselves: ordering, match
+``run_search_pipeline`` and ``execute_search_request`` themselves: ordering, match
 percentages, scope, compromises, clarification pass-through, cache behaviour, the
-response contract. P5.3 splits that function into stages; this file must not change.
+response contract. A refactor of the pipeline stages must leave these files unchanged.
 """
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-"""Unit tests for §16 LLM cost aggregation.
+"""Unit tests for the LLM cost aggregation.
 
 `daily_llm_cost` runs one SQL aggregation; these tests stub the session so the
 Python-side handling (row → dict conversion, total summing, error wrapping) is

@@ -1,4 +1,4 @@
-"""§14 step 7 — the clarification schema.
+"""The clarification schema.
 
 `Clarification` is what `should_clarify` asks — the trigger's `ClarificationReason`,
 the HU question and its option chips (`ClarificationOption`, whose `id` follows the

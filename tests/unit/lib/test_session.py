@@ -1,4 +1,4 @@
-"""Unit tests for §14 step-3 anonymous session state.
+"""Unit tests for the anonymous session state.
 
 Verifies the schema invariants, the HMAC-signed-cookie helpers, and the
 `SessionStore` lifecycle (create / get / update / clear, rolling TTL) against
@@ -133,7 +133,6 @@ def test_session_state_defaults_are_empty() -> None:
     assert state.refinement_overrides is None
     assert state.session_signals == []
     assert state.clarification_answers == []
-    assert state.w_overrides == {}
 
 
 def test_session_state_is_frozen() -> None:
@@ -173,7 +172,6 @@ def test_session_state_round_trips_through_json() -> None:
         clarification_answers=[
             ClarificationAnswer(reason=ClarificationReason.AMBIGUOUS_GEOGRAPHY, option_id="district:13"),
         ],
-        w_overrides={"price": 0.3, "quality": -0.1},
     )
 
     blob = state.model_dump_json()

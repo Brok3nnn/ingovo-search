@@ -1,4 +1,4 @@
-"""§17.2.6 weight-calibration runner — DB-backed grid search over SyntheticEvalRating.
+"""Weight-calibration runner — DB-backed grid search over SyntheticEvalRating.
 
 Wires the three pieces the pure calibrator in `calibrate_weights.py` needs:
 1. **Ground-truth loader** — pulls every (`query_id`, `property_id`, `rating`)
@@ -10,8 +10,8 @@ Wires the three pieces the pure calibrator in `calibrate_weights.py` needs:
    per query and reused across the whole weight grid (LLM/Cohere round-trips
    are the dominant cost; the same parsed query + embedding is valid for
    every weight combo).
-3. **Grid spec** — a compact 2-axis sweep around the §8 step-5 hand-set
-   defaults; widen via CLI flags once the §17.2.4 quota expands.
+3. **Grid spec** — a compact 2-axis sweep around the hand-set
+   defaults; widen via CLI flags once the quota expands.
 
 CLI:
   uv run python eval/run_calibration.py             # default grid
@@ -115,7 +115,7 @@ def parse_traffic_mix(raw: str) -> dict[str, float]:
 
 
 async def load_eval_set(rater_id: str) -> dict[str, dict[str, int]]:
-    """Pull every rating for `rater_id` from the DB and reshape per §17.2.6.
+    """Pull every rating for `rater_id` from the DB and reshape.
 
     Returns `{query_id: {property_id: rating}}`. Drops queries that ended up
     with fewer than 2 ratings — single-rating queries cannot meaningfully
@@ -218,7 +218,7 @@ async def main_async(args: argparse.Namespace) -> None:
             f"No ratings for rater {args.rater!r} — rate via the internal rating tool or run build_synthetic_ratings.py."
         )
 
-    # v0.4 grid: quality is now populated (M1 §4 enrichment backfill done),
+    # v0.4 grid: quality is now populated (enrichment backfill done),
     # so the weight is worth tuning again. Sweep quality x content x geo.
     # 4 x 3 x 2 = 24 combos.
     grid_spec = [
@@ -251,7 +251,7 @@ async def main_async(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run §17.2.6 weight calibration grid search.")
+    parser = argparse.ArgumentParser(description="Run weight calibration grid search.")
     parser.add_argument("--top", type=int, default=10, help="How many best combos to print (default 10).")
     parser.add_argument("--rater", default=DEFAULT_RATER_ID, help="rater_id whose ratings form the ground truth.")
     parser.add_argument(

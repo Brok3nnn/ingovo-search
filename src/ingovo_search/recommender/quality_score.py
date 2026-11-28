@@ -1,15 +1,12 @@
 """Listing quality score — 0..1 score per listing.
 
-Per the design spec §6: a weighted blend of five sub-scores (photos,
-description completeness, structured-feature fill, recency, agency quality).
-Used by the recommender and by the agent-dashboard coaching surface.
+A weighted blend of five sub-scores (photos, description completeness,
+structured-feature fill, recency, agency quality). Used by the recommender; the
+coaching templates below were written for the product's agent dashboard.
 
 Every function here is pure logic and DB-free. The property argument is typed
 `object` and read via `getattr` so lightweight test stubs and the real
-`Property` ORM model both work — mirroring `ingestion.quality_gate`.
-
-Re-computation hooks (the §3 upsert pipeline and the §12 nightly batch) live
-in those components; this module only computes.
+`Property` ORM model both work. This module only computes; it stores nothing.
 """
 
 from __future__ import annotations
@@ -20,7 +17,7 @@ from typing import cast
 
 from pydantic import BaseModel
 
-# §4 enrichment-output columns that are genuinely nullable pre-enrichment.
+# Enrichment-output columns that are genuinely nullable pre-enrichment.
 # `structured_feature_fill_score` measures how many of these are populated.
 ENRICH_FIELDS: tuple[str, ...] = (
     "renovation_state",
@@ -37,7 +34,7 @@ ENRICH_FIELDS: tuple[str, ...] = (
     "light_quality_score",
 )
 
-# Rooms whose dedicated photos most influence buyer decisions (Appendix B).
+# Rooms whose dedicated photos most influence buyer decisions.
 REQUIRED_ROOM_COVERAGE: tuple[str, ...] = ("kitchen", "bathroom")
 
 # v0 hand-set sub-score weights (sum to 1.0). v1 fits these on logged signals.
@@ -56,8 +53,8 @@ RECENCY_SCORE_THRESHOLD = 0.3
 # Default agency-quality score when no agency-level data is available.
 DEFAULT_AGENCY_QUALITY = 0.5
 
-# Coaching templates surfaced to agents (Appendix B). `quality_score_breakdown`
-# returns the template ids; §14 maps ids to this Hungarian copy.
+# Coaching templates surfaced to agents. `quality_score_breakdown` returns the
+# template ids; this table maps them to the Hungarian copy.
 COACHING_TEMPLATES: dict[str, str] = {
     "add_more_photos": (
         "Tölts fel több fotót (legalább 8-at). A több fotóval rendelkező "
@@ -123,8 +120,8 @@ def has_room_coverage(listing: object) -> bool:
     """True iff `features["photo_room_coverage"]` covers every required room.
 
     Photo-level room labelling is not produced in v0 (vision insights are
-    deferred per the design spec §6.10), so most listings return False
-    and take the reduced `photo_score` coverage multiplier.
+    deferred), so most listings return False and take the reduced
+    `photo_score` coverage multiplier.
     """
     features = getattr(listing, "features", None)
     if not isinstance(features, dict):
@@ -153,7 +150,7 @@ def description_completeness_score(listing: object) -> float:
 
 
 def structured_feature_fill_score(listing: object) -> float:
-    """Fraction of §4 enrichment fields that are populated."""
+    """Fraction of enrichment fields that are populated."""
     filled = sum(1 for field in ENRICH_FIELDS if getattr(listing, field, None) is not None)
     return filled / len(ENRICH_FIELDS)
 
@@ -173,7 +170,7 @@ def lookup_agency_quality(
     quality_lookup: dict[str, float] | None = None,
 ) -> float | None:
     """Look up an agency-level quality score. v0 has no source, so this is a
-    pure mapping lookup; callers pass `quality_lookup` once §16 supplies one."""
+    pure mapping lookup; callers pass `quality_lookup` once a source exists."""
     if agency_id is None or quality_lookup is None:
         return None
     return quality_lookup.get(agency_id)

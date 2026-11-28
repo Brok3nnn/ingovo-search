@@ -1,8 +1,8 @@
-"""Pure-logic builders that produce the strings §5 feeds into Cohere.
+"""Pure-logic builders for the two texts each listing embeds with Cohere.
 
 `build_factual_text` templates the structured fields (rooms, district, area,
 renovation state, amenities, …) into a deterministic HU phrase used as the
-"factual" embedding input. `build_descriptive_text` concatenates §4
+"factual" embedding input. `build_descriptive_text` concatenates the
 enrichment outputs (`cleaned_description` + `one_paragraph_summary`) for the
 "descriptive" embedding.
 
@@ -97,7 +97,7 @@ def build_factual_text(prop: Property) -> str:
 
 
 def build_descriptive_text(prop: Property) -> str:
-    """Concatenate §4 enrichment outputs into the descriptive embedding input."""
+    """Concatenate enrichment outputs into the descriptive embedding input."""
     blocks: list[str] = []
     if prop.cleaned_description:
         blocks.append(prop.cleaned_description.strip())

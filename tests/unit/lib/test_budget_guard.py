@@ -1,4 +1,4 @@
-"""Unit tests for §16 LLM budget guardrails."""
+"""Unit tests for the LLM budget guardrails."""
 
 from __future__ import annotations
 

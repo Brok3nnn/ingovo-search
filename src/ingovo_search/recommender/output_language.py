@@ -8,8 +8,8 @@ localised by the runtime DOM translator the way UI labels are — the model has 
 write it in the reader's language in the first place.
 
 This module is the single place that knows which locales that covers and how the
-directive is phrased. `narrator.py`, `rerank_prompt.py` and `ai_prompt.py` all
-pin their output language through it.
+directive is phrased. `narrator.py` and `rerank_prompt.py` both pin their output
+language through it.
 
 Unknown locales fall back to Hungarian rather than raising: prose in the source
 language is a far better failure mode than a 500 on the search path.

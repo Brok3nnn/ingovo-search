@@ -1,9 +1,9 @@
 """Unit tests for `embed_listing` cache behavior.
 
-The DB-write side of acceptance 3 + the scale path live in the integration
-suite (`tests/integration/ingestion/test_embed_listing_scale.py`). This file
-covers the cache-hit short-circuit (acceptance 4) with a lightweight stub
-session that records `execute` calls but doesn't touch a real database.
+The DB-write side and the scale path live in the integration suite
+(`tests/integration/ingestion/test_embed_listing_scale.py`). This file covers the
+cache-hit short-circuit with a lightweight stub session that records `execute`
+calls but doesn't touch a real database.
 """
 
 from __future__ import annotations
@@ -62,7 +62,7 @@ def _make_property() -> Property:
 
 
 async def test_embed_listing_cache_hit_skips_embed_calls() -> None:
-    """Acceptance 4 from §5 — second pass over the same property does not call `embed`."""
+    """Second pass over the same property does not call `embed`."""
     prop = _make_property()
     session = cast(AsyncSession, _StubSession(prop))
     client = MockEmbeddingClient()

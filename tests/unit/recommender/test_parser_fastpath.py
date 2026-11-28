@@ -1,4 +1,4 @@
-"""Unit tests for the §7 deterministic parser fast path.
+"""Unit tests for the deterministic parser fast path.
 
 The fast path must (a) parse simple explicit queries correctly without an LLM
 call, and (b) decline — return `None` — on anything carrying soft preferences,
@@ -161,7 +161,7 @@ def test_price_range_accepts_currency_token_before_between() -> None:
     assert parsed.hard_filters.price_huf_max == 80_000_000
 
 
-# --- Inflected city / colloquial capital forms (fast path expansion §2) ------
+# --- Inflected city / colloquial capital forms ------------------------------
 
 
 def test_locative_city_debrecenben() -> None:

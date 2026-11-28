@@ -189,8 +189,10 @@ async def test_the_last_failure_surfaces_when_every_model_is_down(monkeypatch: p
     _rotating_client(monkeypatch, succeed_on="nothing-succeeds", attempted=attempted)
 
     req = LlmRequest(model="gemini-2.5-flash-lite", system="s", user="hello")
-    with pytest.raises(RuntimeError, match="unavailable"):
+    with pytest.raises(LlmError, match="every model failed") as raised:
         await GoogleAiClient(api_key="k").complete(req)
+
+    assert isinstance(raised.value.__cause__, RuntimeError)
 
     assert attempted == list(DEFAULT_FALLBACK_CHAIN)
     GoogleAiClient._clients_by_api_key.clear()  # pyright: ignore[reportPrivateUsage]

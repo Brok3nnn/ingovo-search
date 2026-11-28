@@ -69,7 +69,7 @@ class Settings(BaseSettings):
     # the parser, so it bounds the slower of the two rather than adding to it.
     ai_search_image_timeout_ms: int = Field(default=15_000, alias="AI_SEARCH_IMAGE_TIMEOUT_MS")
     # Ceiling on the Gemini rerank. A rerank of 12 candidates with a rationale each
-    # measured about 3.1 s in the original deployment; on a timeout the
+    # measured about 3.1 s in the original project; on a timeout the
     # deterministic order is served.
     ai_search_rerank_timeout_ms: int = Field(default=3500, alias="AI_SEARCH_RERANK_TIMEOUT_MS")
 

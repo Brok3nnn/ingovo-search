@@ -55,10 +55,10 @@ async def search_preview(
         _logger.warning("search preview parser fallback", request_id=payload.request_id, error=type(exc).__name__)
         parsed = fallback_parse_query(payload.query)
     except Exception:
-        # Deliberately broad: `GoogleAiClient.complete` re-raises the raw SDK
-        # exception, so the set is not enumerable here. The preview runs while
-        # the visitor types, and the deterministic reading beats an error; logged
-        # at error with the traceback so a real bug is not mistaken for an outage.
+        # Deliberately broad: a model outage arrives as `LlmError` above, so what
+        # reaches here is a bug in the parser path. The preview runs while the
+        # visitor types, and the deterministic reading beats an error; logged at
+        # error with the traceback so a real bug is not mistaken for an outage.
         _logger.exception("search preview parser fallback", request_id=payload.request_id)
         parsed = fallback_parse_query(payload.query)
     else:

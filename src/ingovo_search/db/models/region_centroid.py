@@ -1,6 +1,6 @@
 """RegionCentroid — learned geographic centroids for fuzzy region names.
 
-Populated by §10's nightly recompute. Cold-start `llm_hint_districts` cached
+Populated by the nightly recompute. Cold-start `llm_hint_districts` cached
 here per fuzzy region until enough engagement signal accrues (~50 positives).
 """
 

@@ -1,6 +1,6 @@
 """The batched candidate fetches behind `recommend`.
 
-Each helper is one SQL round-trip for a whole candidate list: the §8 scoring columns, the
+Each helper is one SQL round-trip for a whole candidate list: the scoring columns, the
 PostGIS coordinates, the embedding similarities and the searchable kNN head. The column
 whitelist lives here so the homepage probe and the orchestrator read the same row shape.
 """
@@ -88,7 +88,7 @@ async def fetch_properties_in_order(session: AsyncSession, ids: Sequence[str]) -
 
 
 async def fetch_candidate_rows(session: AsyncSession, ids: Sequence[str]) -> list[SimpleNamespace]:
-    """Public wrapper: load the §8 scoring columns for `ids`, order preserved.
+    """Public wrapper: load the scoring columns for `ids`, order preserved.
 
     Exposes the same lightweight `SimpleNamespace` rows the scorer consumes so
     callers outside the full pipeline (the homepage probe) can score a candidate

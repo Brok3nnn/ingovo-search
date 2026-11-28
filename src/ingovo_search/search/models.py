@@ -40,16 +40,13 @@ def _empty_signal_list() -> list[SessionSignal]:
     return []
 
 
-def _empty_w_overrides() -> dict[str, float]:
-    return {}
-
-
 class SearchRequest(BaseModel):
-    """Buyer-side search payload — see the design spec §14 step 6."""
+    """Buyer-side search payload."""
 
     model_config = {"frozen": True}
 
-    query: str | None = None
+    # The same ceiling as the preview and probe endpoints: a search sentence, not a document.
+    query: str | None = Field(default=None, max_length=600)
     include_narratives: bool = False
     # Output language for the AI narrative. The narrative is free prose, so the
     # web app's runtime translator cannot localise it — only the model can.
@@ -63,14 +60,13 @@ class SearchRequest(BaseModel):
     query_locale: str | None = None
     include_rerank: bool = True
     # Advanced/eval knob: how many top candidates go to the LLM reranker. None
-    # uses the production default (`RERANK_CANDIDATE_COUNT`); the §17 sweep sets
-    # it to compare top 30 / 20 / 15.
-    rerank_candidate_count: int | None = None
+    # uses the default (`RERANK_CANDIDATE_COUNT`); the candidate-count sweep sets
+    # it to compare top 30 / 20 / 15. Bounded, since it sizes a paid model call.
+    rerank_candidate_count: int | None = Field(default=None, ge=1, le=30)
     reset_session: bool = False
     prior_clarifications: list[ClarificationAnswer] = Field(default_factory=_empty_clarification_list)
     refinement_overrides: RefinementOverrides | None = None
     session_signals: list[SessionSignal] = Field(default_factory=_empty_signal_list)
-    w_overrides: dict[str, float] = Field(default_factory=_empty_w_overrides)
 
 
 def search_request_from_json(payload: str) -> SearchRequest:
@@ -150,10 +146,10 @@ class SearchResponse(BaseModel):
     """Envelope `data` payload — at most 30 results, optional clarification.
 
     `relaxed` is True when the initial hard filter produced fewer than the
-    first-page target and the pipeline fell back to M3 stepwise relaxation.
+    first-page target and the pipeline fell back to stepwise relaxation.
     `relaxation_path` carries the human-readable labels of the relaxations
     that were actually applied (in order). `refinement_suggestions` carries
-    the M3 one-click filter tweaks the UI offers under the result list.
+    the one-click filter tweaks the UI offers under the result list.
     """
 
     model_config = {"frozen": True}

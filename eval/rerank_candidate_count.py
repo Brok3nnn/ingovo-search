@@ -1,7 +1,7 @@
-"""§17 / Phase 4 — rerank candidate-count sweep runner (top 30 / 20 / 15).
+"""Rerank candidate-count sweep runner (top 30 / 20 / 15).
 
 Drives the live `POST /api/search` endpoint at several `rerank_candidate_count`
-values and scores each against the §17.2 human ratings, then prints an nDCG@10
+values and scores each against the human ratings, then prints an nDCG@10
 / top-1 / latency / cost comparison and the smallest count that preserves
 quality (`recommend_candidate_count`).
 

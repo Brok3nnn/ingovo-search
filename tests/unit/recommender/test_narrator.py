@@ -1,4 +1,4 @@
-"""Unit tests for §17.3 AI narrator."""
+"""Unit tests for the AI narrator."""
 
 from __future__ import annotations
 
@@ -441,7 +441,7 @@ def test_attach_vs_next_returns_new_instance() -> None:
     assert updated.headline == base.headline
 
 
-# --- Phase 6: mood derivation -----------------------------------------------
+# --- Mood derivation --------------------------------------------------------
 
 
 def _bd(**overrides: float) -> ScoreBreakdown:

@@ -1,4 +1,4 @@
-"""M3 refinement-suggestion generator — 4-6 one-click filter tweaks.
+"""Refinement-suggestion generator — 4-6 one-click filter tweaks.
 
 After every `/api/search` response the orchestrator emits a list of
 `RefinementSuggestion`s that the UI renders as button-chips ("Lazítok az
@@ -19,7 +19,7 @@ Heuristics, no LLM — every suggestion is derived deterministically from
   (`relaxation_path` non-empty), offer a chip to put the filter back.
 
 Returns at most `MAX_SUGGESTIONS` items, deduplicated by `kind`. The
-function is pure: same inputs ⇒ same suggestions, so the §13 search-cache
+function is pure: same inputs ⇒ same suggestions, so the search-cache
 key can include it.
 """
 

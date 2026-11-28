@@ -1,4 +1,4 @@
-"""Unit tests for §17.2.1 OSM extractor.
+"""Unit tests for the OSM extractor.
 
 The Overpass HTTP path is replaced with a deterministic in-memory fake so
 tests don't depend on the real network. Query building, response parsing,
@@ -257,7 +257,7 @@ def test_target_totals_sum_above_acceptance_bar() -> None:
 
 
 def test_target_distribution_matches_spec_outline() -> None:
-    """Spec §17.2.1: BP 1-23 weighted by pop, 6 regional cities, ~200 smaller-town entries."""
+    """BP 1-23 weighted by population, 6 regional cities, ~200 smaller-town entries."""
     assert set(BUDAPEST_DISTRICT_TARGETS) == {str(i) for i in range(1, 24)}
     assert set(REGIONAL_CITY_TARGETS) == {"Pécs", "Szeged", "Debrecen", "Miskolc", "Győr", "Sopron"}
     rural_total = sum(RURAL_TARGETS.values())

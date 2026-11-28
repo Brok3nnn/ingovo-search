@@ -1,6 +1,6 @@
-"""Unit tests for §11 rerank — `rerank_and_explain`, cache, fast path.
+"""Unit tests for the rerank — `rerank_and_explain`, cache, fast path.
 
-Covers acceptance criteria 1-4 from the design spec §11:
+Covers:
 1. Mock Tier-L returns 10 ranked items with rationales; `rerank_and_explain`
    returns them in rank order.
 2. Same query twice within 10 min → second call hits the cache.
@@ -126,9 +126,6 @@ def _enrichment_logs(session: AsyncSession) -> list[EnrichmentLog]:
     return [entity for entity in cast(_RecordingSession, session).added if isinstance(entity, EnrichmentLog)]
 
 
-# --- Acceptance 1 ------------------------------------------------------------
-
-
 async def test_rerank_returns_items_sorted_by_rank() -> None:
     query = _query()
     candidates = _candidates(10)
@@ -172,7 +169,7 @@ async def test_rerank_drops_listing_ids_not_in_candidate_set() -> None:
 
     The Tier-L LLM occasionally echoes a listing id with a dropped UUID
     character. That id was never a candidate, so `rerank_and_explain` must
-    discard it — otherwise the §14a hard-filter guardrail downstream raises and
+    discard it — otherwise the hard-filter guardrail downstream raises and
     500s the whole search. The remaining valid ids keep their rank order.
     """
     query = _query()
@@ -241,9 +238,6 @@ def test_rerank_prompt_contains_structured_query_contract() -> None:
     assert '"price_huf_max":80000000' in prompt
 
 
-# --- Acceptance 2 ------------------------------------------------------------
-
-
 async def test_same_query_twice_within_window_hits_cache() -> None:
     query = _query()
     candidates = _candidates(10)
@@ -288,9 +282,6 @@ async def test_expired_cache_entry_triggers_new_llm_call() -> None:
     assert client.calls == 2
 
 
-# --- Acceptance 3 ------------------------------------------------------------
-
-
 async def test_low_match_flips_true_when_seven_of_ten_are_low_confidence() -> None:
     query = _query()
     candidates = _candidates(10)
@@ -311,7 +302,7 @@ async def test_low_match_stays_false_with_six_low_confidence_items() -> None:
     assert result.low_match is False
 
 
-# --- Acceptance 4 (fast path) -----------------------------------------------
+# --- Fast path --------------------------------------------------------------
 
 
 async def test_empty_semantic_query_takes_fast_path_without_llm_call() -> None:
@@ -444,7 +435,7 @@ def test_rerank_item_rejects_zero_rank() -> None:
         RerankItem(listing_id="L00", rank=0)
 
 
-# --- §11 Phase 5: rank-only mode --------------------------------------------
+# --- Rank-only mode ---------------------------------------------------------
 
 
 def _rank_only_response(

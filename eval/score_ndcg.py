@@ -1,4 +1,4 @@
-"""§17.2.6 NDCG@10 scorer over `SyntheticEvalRating` rows.
+"""NDCG@10 scorer over `SyntheticEvalRating` rows.
 
 Groups ratings per (query_id, rater_id) and orders each group by the `rank`
 recorded at rating time — i.e. the position the pipeline gave the listing when

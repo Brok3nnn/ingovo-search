@@ -1,11 +1,10 @@
-"""Integration tests for §10 geo scoring + learned centroids.
+"""Integration tests for the geo scoring + learned centroids.
 
 Requires Postgres + pgvector + postgis. Run via:
     uv run pytest -m integration
 
-Covers §10 acceptance tests 3-6, all of which need a real database:
-learned-centroid scoring, cold-start hint generation + caching,
-`recompute_region_centroid`, and the scale test.
+Covers what needs a real database: learned-centroid scoring, cold-start hint
+generation + caching, `recompute_region_centroid`, and the scale test.
 """
 
 from __future__ import annotations
@@ -119,15 +118,12 @@ async def _insert_region_centroid(sess: AsyncSession, row: _CentroidRow) -> None
     await sess.flush()
 
 
-# --- Acceptance 3 ------------------------------------------------------------
-
-
 async def test_learned_centroid_gaussian_scoring(session: AsyncSession) -> None:
-    """§10 acceptance 3: a centroid with n_signals=100 scores by Gaussian distance.
+    """A centroid with n_signals=100 scores by Gaussian distance.
 
-    The spec annotates property (47.5, 19.02) as "≈0.95", but that offset is
-    ~1.5 km and the spec formula exp(-(d/spread)^2) with spread=2 yields ~0.57
-    there — see `test_geo_score.test_gaussian_at_acceptance_3_coordinates`.
+    The original design note annotated property (47.5, 19.02) as "≈0.95", but that
+    offset is ~1.5 km and the formula exp(-(d/spread)^2) with spread=2 yields ~0.57
+    there — see `test_geo_score.test_gaussian_at_the_centroid_and_near_it`.
     This asserts the value the formula actually produces.
     """
     client = MockLlmClient({})  # learned path must not call the LLM
@@ -142,11 +138,8 @@ async def test_learned_centroid_gaussian_scoring(session: AsyncSession) -> None:
     assert abs(offset - 0.569) < 0.01
 
 
-# --- Acceptance 4 ------------------------------------------------------------
-
-
 async def test_cold_start_generates_hint_then_cache_hits(session: AsyncSession) -> None:
-    """§10 acceptance 4: a brand-new region triggers one LLM hint; later calls cache-hit."""
+    """A brand-new region triggers one LLM hint; later calls cache-hit."""
     region = "ÚjRégió"
     client = _CountingLlmClient({_hint_key(region): VALID_HINT})
 
@@ -157,11 +150,8 @@ async def test_cold_start_generates_hint_then_cache_hits(session: AsyncSession) 
     assert first == second == 0.7  # district 13 carries hint weight 0.7
 
 
-# --- Acceptance 5 ------------------------------------------------------------
-
-
 async def test_recompute_region_centroid_matches_expected(session: AsyncSession) -> None:
-    """§10 acceptance 5: recompute produces the expected centroid within 100 m."""
+    """Recompute produces the expected centroid within 100 m."""
     region = "TesztRégió"
     coords = [(47.50, 19.00), (47.50, 19.02), (47.52, 19.00)]
     for lat, lng in coords:
@@ -189,11 +179,8 @@ async def test_recompute_with_no_engagement_writes_zero_signal_row(session: Asyn
     assert centroid.lat is None
 
 
-# --- Acceptance 6 (scale) ----------------------------------------------------
-
-
 async def test_geo_scale_10k_properties(session: AsyncSession) -> None:
-    """§10 acceptance 6: 10K geocoded properties; geo lookup stays fast and indexed."""
+    """10K geocoded properties; geo lookup stays fast and indexed."""
     base_lat, base_lng = 47.4979, 19.0402
     property_ids = [str(uuid4()) for _ in range(10_000)]
     await _bulk_insert_properties(session, property_ids, title="Scale property")
@@ -229,7 +216,7 @@ async def test_geo_scale_10k_properties(session: AsyncSession) -> None:
 
 
 async def test_recompute_region_centroid_scale(session: AsyncSession) -> None:
-    """§10 acceptance 6: recompute over 10K interactions for one region completes < 5 s."""
+    """Recompute over 10K interactions for one region completes < 5 s."""
     region = "SkálaRégió"
     property_ids = [str(uuid4()) for _ in range(200)]
     await _bulk_insert_properties(session, property_ids, title="P")

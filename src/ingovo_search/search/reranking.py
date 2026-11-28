@@ -78,14 +78,12 @@ jev_cooldown = JevCooldown()
 def _log_jev_unavailable(exc: JevError, *, cooldown_s: float) -> None:
     extra = {"status": exc.status, "reason": exc.reason, "cooldown_s": cooldown_s}
     if exc.status in JEV_LIMIT_STATUSES:
-        search_logger.warning("jev rerank limit reached; the Gemini rerank serves during the cooldown", extra=extra)
+        search_logger.warning("jev rerank limit reached; the Gemini rerank serves during the cooldown", **extra)
     elif exc.status in (401, 403, 422):
         # A rejected key or a request Jev cannot parse will not heal by itself.
-        search_logger.error(
-            "jev rerank rejected the request; the Gemini rerank serves during the cooldown", extra=extra
-        )
+        search_logger.error("jev rerank rejected the request; the Gemini rerank serves during the cooldown", **extra)
     else:
-        search_logger.warning("jev rerank unavailable; the Gemini rerank serves during the cooldown", extra=extra)
+        search_logger.warning("jev rerank unavailable; the Gemini rerank serves during the cooldown", **extra)
 
 
 @dataclass(slots=True)
@@ -121,7 +119,8 @@ def _skip_reason(run: SearchRun) -> SkipReason | None:
     if options.conditional_rerank and not should_rerank(run.parsed, run.scored):
         search_logger.info(
             "rerank skipped — deterministic order trusted",
-            extra={"candidate_count": len(run.scored), "semantic_query": run.parsed.semantic_query},
+            candidate_count=len(run.scored),
+            semantic_query=run.parsed.semantic_query,
         )
         return "deterministic"
     return None
@@ -186,13 +185,11 @@ async def _call_reranker(
 async def _report_timeout(run: SearchRun, call: _RerankCall, *, candidate_count: int) -> None:
     search_logger.warning(
         "rerank timed out; falling back to deterministic order",
-        extra={
-            "timeout_ms": call.timeout_ms,
-            "rerank_backend": run.options.rerank_backend,
-            "gemini_fallback": call.gemini_fallback,
-            "candidate_count": candidate_count,
-            "rerank_candidate_count": run.options.rerank_candidate_count,
-        },
+        timeout_ms=call.timeout_ms,
+        rerank_backend=run.options.rerank_backend,
+        gemini_fallback=call.gemini_fallback,
+        candidate_count=candidate_count,
+        rerank_candidate_count=run.options.rerank_candidate_count,
     )
     await run.emit(
         RerankSkippedEvent(request_id=run.progress.request_id, candidate_count=candidate_count, reason="timeout")
@@ -241,11 +238,9 @@ def _apply_rerank_result(
     if not results and scored_candidates:
         search_logger.warning(
             "rerank returned empty usable order; falling back to deterministic order",
-            extra={
-                "candidate_count": len(rerank_head),
-                "rerank_candidate_count": run.options.rerank_candidate_count,
-                "scored_count": len(scored_candidates),
-            },
+            candidate_count=len(rerank_head),
+            rerank_candidate_count=run.options.rerank_candidate_count,
+            scored_count=len(scored_candidates),
         )
         results = scored_candidates
     return results, post_count

@@ -1,4 +1,4 @@
-"""§7 query parser — Hungarian natural language → `ParsedQuery`.
+"""Query parser — Hungarian natural language → `ParsedQuery`.
 
 `parse_query` is the single entry point: cache lookup, one Tier-S LLM call with
 a single correction retry on schema failure, one `EnrichmentLog` row per
@@ -6,7 +6,7 @@ attempt, cache write on success.
 
 The cache key folds in the model id and prompt version, so a
 `PARSER_PROMPT_VERSION` bump invalidates every entry automatically. Production
-uses `CacheParserCache` over the shared §13 Redis-backed cache; tests can still
+uses `CacheParserCache` over the shared Redis-backed cache; tests can still
 use `InMemoryParserCache`.
 
 The prompt content lives in `parser_prompt.py`.
@@ -118,7 +118,7 @@ class InMemoryParserCache:
 
 
 class CacheParserCache:
-    """`ParserCache` adapter backed by the shared async §13 cache."""
+    """`ParserCache` adapter backed by the shared async cache."""
 
     def __init__(self, cache: Cache, *, ttl_seconds: int = DEFAULT_CACHE_TTL_SECONDS) -> None:
         self._cache = cache
@@ -299,7 +299,7 @@ def fallback_parse_query(text: str) -> ParsedQuery:
 
 def _fast_path(text: str, locale: str) -> ParsedQuery | None:
     """The rule-based parse with the deterministic defaults, or None to ask the LLM."""
-    # Deterministic fast path (§ Phase 2): simple, fully-explicit queries
+    # Deterministic fast path: simple, fully-explicit queries
     # ("eladó lakás Budapest 50 millió alatt") are parsed by rule, with no Gemini
     # call. It only fires when every token is accounted for; anything ambiguous
     # or carrying soft preferences falls through to the LLM unchanged.
@@ -406,13 +406,13 @@ async def parse_query(
     if cache is not None:
         cached = await cache.get(key)
         if cached is not None:
-            _logger.info("parser cache hit", extra={"cache_key": key})
+            _logger.info("parser cache hit", cache_key=key)
             return _with_deterministic_defaults(text, cached)
-        _logger.info("parser cache miss", extra={"cache_key": key})
+        _logger.info("parser cache miss", cache_key=key)
 
     fast = _fast_path(text, settings.locale)
     if fast is not None:
-        _logger.info("parser fast path hit", extra={"cache_key": key})
+        _logger.info("parser fast path hit", cache_key=key)
         if cache is not None:
             await cache.set(key, fast)
         return fast
@@ -422,5 +422,5 @@ async def parse_query(
 
     if cache is not None:
         await cache.set(key, output)
-        _logger.info("parser cache set", extra={"cache_key": key})
+        _logger.info("parser cache set", cache_key=key)
     return output

@@ -1,5 +1,5 @@
 # pyright: reportUnusedFunction=false
-"""Unit tests for §14 step-10 response envelope + exception handlers.
+"""Unit tests for the response envelope + exception handlers.
 
 Routes are wired against a tiny in-test FastAPI app so the handler
 matrix can be exercised end-to-end via `TestClient` without any
@@ -83,7 +83,7 @@ def test_error_body_is_frozen() -> None:
 
 @pytest.fixture
 def app_with_handlers() -> FastAPI:
-    """Build a tiny app whose routes each raise one of the §14 exceptions."""
+    """Build a tiny app whose routes each raise one of the exceptions."""
     app = FastAPI()
     install_exception_handlers(app)
 

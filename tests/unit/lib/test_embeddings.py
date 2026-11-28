@@ -23,7 +23,6 @@ async def test_embed_returns_1024_dim_vector() -> None:
 
 
 async def test_embed_same_text_same_input_type_is_deterministic() -> None:
-    """Acceptance 2 from §5."""
     client = MockEmbeddingClient()
     first = await client.embed("Lakás Budapesten", "search_document")
     second = await client.embed("Lakás Budapesten", "search_document")
@@ -38,7 +37,6 @@ async def test_embed_different_input_types_yield_different_vectors() -> None:
 
 
 async def test_embed_returns_l2_normalized_vector() -> None:
-    """Acceptance 5 from §5."""
     client = MockEmbeddingClient()
     vec = await client.embed("normalize me", "search_document")
     norm = math.sqrt(sum(component * component for component in vec))

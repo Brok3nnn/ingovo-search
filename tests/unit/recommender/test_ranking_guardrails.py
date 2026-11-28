@@ -1,4 +1,4 @@
-"""Unit tests for §14 ranking guardrails (acceptance 9 + step 8)."""
+"""Unit tests for the ranking guardrails."""
 
 from __future__ import annotations
 
